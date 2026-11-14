@@ -1,14 +1,14 @@
 import { DEMO_ADMIN, DEMO_CUSTOMER, DEMO_LOGIN_PHONES, DEMO_OTP, DEMO_SIGNUP_PHONES } from "@/lib/demo";
 import { DemoLoginCard } from "./DemoLoginCard";
 import { MOBILE_OTP } from "@/lib/features";
-import { InfoIcon, MobileIcon } from "./Icons";
+import { ChevronDown, InfoIcon, MobileIcon, SaleIcon } from "./Icons";
 
 /** "Try it" box for the demo deployment: Firebase test numbers with a fixed OTP (no SMS sent). */
 export function DemoPhones({ mode, realSms = false }: { mode: "login" | "register"; realSms?: boolean }) {
   const phones = mode === "login" ? DEMO_LOGIN_PHONES : DEMO_SIGNUP_PHONES;
   const accounts = (
     <>
-      <p className="font-medium text-ivory">Try the demo: tap an account to fill the form</p>
+      <p className="text-[12px] text-secondary">Tap an account to fill the sign-in form.</p>
       <div className="mt-3 space-y-2">
         <DemoLoginCard title="Demo customer" email={DEMO_CUSTOMER.email} password={DEMO_CUSTOMER.password} />
         <DemoLoginCard title="Admin panel (read-only)" email={DEMO_ADMIN.email} password={DEMO_ADMIN.password} />
@@ -21,7 +21,16 @@ export function DemoPhones({ mode, realSms = false }: { mode: "login" | "registe
   );
   if (!MOBILE_OTP) {
     if (mode !== "login") return null;
-    return <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">{accounts}</div>;
+    // Collapsed by default; tap the header to open (native <details>: keyboard + screen-reader friendly, no JS).
+    return (
+      <details className="group mt-10 border border-dashed border-gold/50 bg-gold/5 text-[13px] text-secondary">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 font-medium text-ivory marker:hidden [&::-webkit-details-marker]:hidden">
+          <span className="flex items-center gap-2"><SaleIcon size={16} className="text-gold" /> Try the demo accounts</span>
+          <ChevronDown size={18} className="shrink-0 text-gold transition-transform duration-200 group-open:rotate-180" />
+        </summary>
+        <div className="px-5 pb-5">{accounts}</div>
+      </details>
+    );
   }
   return (
     <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">
