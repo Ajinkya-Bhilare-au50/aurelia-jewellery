@@ -5,3 +5,7 @@ node_modules
 .env
 *.tsbuildinfo
 .neon
+
+.vercel
+.env*
+!.env.example
