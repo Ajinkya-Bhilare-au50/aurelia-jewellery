@@ -1,0 +1,151 @@
+// Postgres (Neon) via Prisma. Run `npm run db:migrate` after editing, then `npm run db:seed` on a fresh database.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection (used by the app)
+  directUrl = env("DIRECT_URL") // direct connection (used by migrations)
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  name                 String
+  email                String    @unique
+  phone                String?   @unique // E.164, e.g. +919876543210
+  phoneVerifiedAt      DateTime?
+  passwordHash         String
+  role                 String    @default("customer") // "customer" | "admin"
+  referralCode         String    @unique
+  referredById         String?
+  referredBy           User?     @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals            User[]    @relation("Referrals")
+  referralDiscountUsed Boolean   @default(false)
+  avatarUpdatedAt      DateTime? // set when a profile photo exists; doubles as cache-buster
+  createdAt            DateTime  @default(now())
+  orders               Order[]
+  coupons              Coupon[]
+  avatar               UserAvatar?
+
+  @@index([referredById])
+}
+
+/// Profile photo, kept out of `User` so normal user reads never load image bytes.
+model UserAvatar {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data      Bytes // 256×256 WebP/JPEG/PNG, ≤ 200 KB
+  mimeType  String
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  category       String // rings | necklaces | earrings | bracelets
+  metal          String
+  purity         String
+  weight         String
+  price          Int // INR rupees
+  compareAtPrice Int?
+  stock          Int
+  images         String[]
+  description    String
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([category])
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  type        String // percent | flat
+  value       Int
+  minOrder    Int
+  maxDiscount Int?
+  expiresAt   DateTime?
+  usageLimit  Int?
+  usedCount   Int       @default(0)
+  active      Boolean   @default(true)
+  ownerId     String?
+  owner       User?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  description String?
+  createdAt   DateTime  @default(now())
+
+  @@index([ownerId])
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  number          String   @unique
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  email           String
+  items           Json // OrderItem[] snapshot at purchase time
+  address         Json // Address
+  subtotal        Int
+  discount        Int
+  discountLabel   String?
+  couponCode      String?
+  referralApplied Boolean  @default(false)
+  shipping        Int
+  total           Int
+  refundedAmount  Int      @default(0) // sum of refunds issued (rupees)
+  refunds         Json     @default("[]") // Refund[]: cancellations / refunds history
+  status          String // OrderStatus
+  timeline        Json // TimelineEntry[]
+  paymentProvider String // razorpay | demo
+  razorpayOrderId String?  @unique
+  paymentId       String?
+  courier         String?
+  awb             String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([email])
+}
+
+/// Automatic, time-boxed price reductions (e.g. "Diwali Sale"). Applied server-side to product prices.
+model Sale {
+  id               String   @id @default(cuid())
+  name             String
+  bannerText       String? // shown in the announcement bar while live
+  type             String // percent | flat
+  value            Int // % (1–90) or rupees off per unit
+  scope            String // all | categories | products
+  categories       String[]
+  productIds       String[]
+  startsAt         DateTime
+  endsAt           DateTime
+  active           Boolean  @default(true) // admin pause switch
+  stackWithCoupons Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  @@index([active, startsAt, endsAt])
+}
+
+/// Newsletter sign-ups (export to your email provider).
+model Subscriber {
+  email     String   @id
+  source    String   @default("footer")
+  createdAt DateTime @default(now())
+}
+
+/// Fixed-window rate limiting (works across serverless instances).
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+/// Atomic counters (e.g. human-friendly order numbers).
+model Counter {
+  id    String @id
+  value Int
+}

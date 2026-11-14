@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Theme tokens as RGB channels (so Tailwind opacity like bg-gold/10 works).
+   * Dark = brand default ("Dark Luxury"); light = warm ivory paper. All text pairs ≥ 4.5:1.
+   * Any element can force a palette with data-theme="dark|light" (e.g. text over photos stays dark-themed).
+   * NOTE: "ivory" is the PRIMARY TEXT token (light in dark mode, near-black in light mode).
+   */
+  :root, [data-theme="dark"] {
+    color-scheme: dark;
+    --background: 16 16 16;
+    --surface: 24 24 24;
+    --surface-elevated: 34 34 34;
+    --surface-muted: 41 41 41;
+    --gold: 197 164 109;
+    --gold-hover: 215 185 130;
+    --ivory: 245 240 232;
+    --secondary: 184 177 166;
+    --muted: 130 125 117;
+    --border: 52 49 44;
+    --success: 111 165 138;
+    --error: 216 121 121;
+    --warning: 213 168 94;
+  }
+  [data-theme="light"] {
+    color-scheme: light;
+    --background: 250 247 242;
+    --surface: 255 255 255;
+    --surface-elevated: 244 239 231;
+    --surface-muted: 236 229 217;
+    --gold: 124 94 40;
+    --gold-hover: 102 76 31;
+    --ivory: 28 26 23;
+    --secondary: 87 81 74;
+    --muted: 107 100 90;
+    --border: 221 212 197;
+    --success: 47 107 77;
+    --error: 163 56 53;
+    --warning: 127 83 9;
+  }
+  /* Forced-palette islands must repaint their own text colour. */
+  [data-theme] { color: rgb(var(--ivory)); }
+
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after { transition: none !important; }
+  body { @apply bg-background font-sans text-[14px] leading-relaxed text-ivory md:text-[15px]; }
+  ::selection { @apply bg-gold text-background; }
+  :focus-visible { @apply outline outline-2 outline-offset-2 outline-gold-hover; }
+  select option { @apply bg-surface-elevated text-ivory; }
+  [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator, [data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+@layer components {
+  /* Layout: §5 — 16–20px mobile, 28–36px tablet, 48–72px desktop, max 1440px */
+  .container-page { @apply mx-auto w-full max-w-page px-4 min-[375px]:px-5 md:px-8 lg:px-12 2xl:px-[72px]; }
+
+  /* Typography: §4 */
+  .label { @apply text-[11px] font-medium uppercase tracking-label text-secondary; }
+  .h-display { @apply font-display font-normal leading-[1.08] tracking-[-0.01em] text-ivory; }
+  .h-hero { @apply h-display text-[40px] min-[430px]:text-[48px] md:text-[64px] xl:text-[80px]; }
+  .h-page { @apply h-display text-[34px] md:text-[48px] xl:text-[56px]; }
+  .h-section { @apply h-display text-[26px] md:text-[32px] xl:text-[40px]; }
+
+  /* Buttons: §14 — primary gold, secondary outlined, tertiary text */
+  .btn { @apply relative inline-flex h-12 items-center justify-center gap-2 px-7 text-[13px] font-semibold uppercase tracking-[0.12em] transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40; }
+  .btn-primary { @apply btn bg-gold text-background hover:bg-gold-hover; }
+  .btn-secondary { @apply btn border border-border bg-transparent text-ivory hover:border-gold hover:text-gold-hover; }
+  .btn-tertiary { @apply inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-ivory underline decoration-border underline-offset-[6px] transition-colors hover:text-gold-hover hover:decoration-gold; }
+  .btn-danger { @apply btn bg-error text-background hover:opacity-90; }
+  .btn-sm { @apply h-10 px-4 text-[12px]; }
+  .icon-btn { @apply grid h-11 w-11 place-items-center text-ivory transition-colors hover:text-gold-hover; }
+
+  /* Forms */
+  .input { @apply h-12 w-full border border-border bg-surface px-4 text-[15px] text-ivory placeholder:text-muted transition-colors hover:border-muted focus:border-gold focus:outline-none aria-[invalid=true]:border-error disabled:opacity-50; }
+  .field-label { @apply mb-2 block text-[12px] font-medium uppercase tracking-[0.12em] text-secondary; }
+  .alert-error { @apply border-l-2 border-error bg-error/10 px-4 py-3 text-sm text-error; }
+  .alert-success { @apply border-l-2 border-success bg-success/10 px-4 py-3 text-sm text-success; }
+
+  /* Surfaces */
+  .card { @apply border border-border bg-surface; }
+  .link { @apply underline decoration-border underline-offset-4 transition-colors hover:text-gold-hover hover:decoration-gold; }
+  .badge { @apply inline-flex items-center whitespace-nowrap px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]; }
+  .tab { @apply whitespace-nowrap px-4 py-2 text-[12px] font-medium uppercase tracking-[0.14em] text-secondary transition-colors hover:text-ivory; }
+  .tab-active { @apply tab bg-gold text-background hover:text-background; }
+
+  /* Horizontal scrollers: no scrollbar, soft fade at the edge to hint more content */
+  .scroll-x { @apply overflow-x-auto [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_85%,transparent)] [mask-image:linear-gradient(to_right,black_85%,transparent)] lg:[mask-image:none] lg:[-webkit-mask-image:none] [&::-webkit-scrollbar]:hidden; }
+
+  .skeleton { @apply relative overflow-hidden bg-surface; }
+  .skeleton::after { content: ""; @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-ivory/[0.05] to-transparent; animation: shimmer 1.6s infinite; }
+}
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
