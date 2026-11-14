@@ -12,7 +12,7 @@
 - [x] Phase 9 — Dark luxury redesign per design.md (tokens, components, homepage order, mega menu, wishlist, filters + mobile drawer, PDP zoom / PIN check / Buy now / sticky bar, cart save-for-later, skeletons)
 - [x] Phase 10 — Performance (CDN image loader, trimmed font weights, production build check)
 - [x] Phase 11 — Postgres (Neon) + Prisma, Firebase mobile OTP (login + signup), e2e smoke test against real Postgres
-- [x] Phase 12 — Production readiness: admin CLI + prod seed, policy pages, Razorpay webhook, demo-payment guard, rate limiting, security headers, config checks, health, emails (Resend), sitemap/robots, Vercel bom1, DEPLOYMENT.md
+- [x] Phase 12 — Production readiness: admin CLI + prod seed, policy pages, Razorpay webhook, demo-payment guard, rate limiting, security headers, config checks, health, emails (Resend), sitemap/robots, Vercel region, DEPLOYMENT.md
 - [x] Phase 13 — Order & item cancellation with automatic (proportional) refunds, admin cancel now refunds, failed-refund retry, late-payment auto-refund
 - [x] Phase 14 — Admin sales (Diwali etc.): scheduled % / ₹ discounts by all / category / product, banner, coupon stacking rule, pause / resume / end now / edit
 - [x] Phase 15 — Review: oversell race fix (auto-refund), IST dates on UTC servers, coupon expiry TZ, friendly validation errors, admin orders pagination, real newsletter storage, live wishlist prices, mobile overflow fix, lint clean; smart search (typo-tolerant, synonyms, instant suggestions)

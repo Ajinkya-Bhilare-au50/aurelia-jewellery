@@ -1,6 +1,6 @@
 # Going live — checklist
 
-Stack: **Vercel** (hosting, Mumbai region via `vercel.json`) · **Neon** (Postgres) · **Firebase** (mobile OTP) · **Razorpay** (payments) · **Resend** (order emails).
+Stack: **Vercel** (hosting, Oregon `pdx1` via `vercel.json`, next to the Neon DB in us-west-2) · **Neon** (Postgres) · **Firebase** (mobile OTP) · **Razorpay** (payments) · **Resend** (order emails).
 
 ## 0. Before anything
 - [ ] Edit `src/lib/site.ts`: legal name, address, support email & phone, GSTIN, grievance officer. These appear in the footer, legal pages and emails, and Razorpay checks them.
