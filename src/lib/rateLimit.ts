@@ -4,8 +4,8 @@ import { prisma } from "./db";
 import { HttpError } from "./http";
 
 /** Best-effort client IP (Vercel / most proxies set x-forwarded-for). */
-export function clientIp() {
-  const h = headers();
+export async function clientIp() {
+  const h = await headers();
   return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
 }
 

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** Instant search suggestions: GET /api/search?q=gold+ring → top matches at live (sale) prices. */
 export const GET = handler(async (req: Request) => {
-  await rateLimit(`search:ip:${clientIp()}`, 120, 60);
+  await rateLimit(`search:ip:${await clientIp()}`, 120, 60);
   const q = (new URL(req.url).searchParams.get("q") ?? "").slice(0, 100);
   if (q.trim().length < 2) return { query: q, total: 0, results: [] };
   const { results, corrected } = searchProducts(await listShopProducts(), q);

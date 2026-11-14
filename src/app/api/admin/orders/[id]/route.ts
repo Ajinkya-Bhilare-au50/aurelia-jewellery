@@ -10,7 +10,8 @@ const schema = z.object({
   awb: z.string().trim().max(40).optional(),
 });
 
-export const PATCH = handler(async (req: Request, { params }: { params: { id: string } }) => {
+export const PATCH = handler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+  const params = await ctx.params;
   await requireAdmin();
   const input = schema.parse(await req.json());
   return { order: await advanceStatus(params.id, input.status, input) };

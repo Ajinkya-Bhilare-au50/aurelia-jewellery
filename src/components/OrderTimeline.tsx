@@ -2,7 +2,7 @@ import { STATUS_FLOW, STATUS_LABEL, formatDate } from "@/lib/format";
 import type { OrderStatus, TimelineEntry } from "@/lib/types";
 import { CancelledIcon, HomeIcon, HourglassIcon, PackageCheckIcon, PinIcon, SuccessIcon, TruckIcon, type IconProps } from "./Icons";
 
-const STATUS_ICON: Record<OrderStatus, (p: IconProps) => JSX.Element> = {
+const STATUS_ICON: Record<OrderStatus, (p: IconProps) => React.JSX.Element> = {
   pending_payment: HourglassIcon,
   confirmed: SuccessIcon,
   packed: PackageCheckIcon,

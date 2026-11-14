@@ -9,7 +9,8 @@ import { allowedNext } from "@/lib/orders";
 
 export const metadata = { title: "Order" };
 
-export default async function AdminOrder({ params }: { params: { id: string } }) {
+export default async function AdminOrder(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const row = await prisma.order.findUnique({ where: { id: params.id } });
   if (!row) notFound();
   const order = toOrder(row);

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** Live price / stock for a few products (wishlist refresh). GET /api/products/live?ids=p_001,p_002 */
 export const GET = handler(async (req: Request) => {
-  await rateLimit(`live:ip:${clientIp()}`, 60, 60);
+  await rateLimit(`live:ip:${await clientIp()}`, 60, 60);
   const ids = (new URL(req.url).searchParams.get("ids") ?? "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 100);
   if (!ids.length) return { products: [] };
   const rows = await prisma.product.findMany({ where: { id: { in: ids } } });

@@ -5,7 +5,8 @@ import { listProducts, prisma, toSale } from "@/lib/db";
 
 export const metadata = { title: "Sale" };
 
-export default async function EditSale({ params }: { params: { id: string } }) {
+export default async function EditSale(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const isNew = params.id === "new";
   const [row, products] = await Promise.all([isNew ? null : prisma.sale.findUnique({ where: { id: params.id } }), listProducts()]);
   if (!isNew && !row) notFound();

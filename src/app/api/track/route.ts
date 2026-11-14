@@ -10,7 +10,7 @@ const schema = z.object({
 
 /** Public order lookup. Returns only tracking info, never address or payment. */
 export const POST = handler(async (req: Request) => {
-  await rateLimit(`track:ip:${clientIp()}`, 30, 600);
+  await rateLimit(`track:ip:${await clientIp()}`, 30, 600);
   const { number, email } = schema.parse(await req.json());
   const row = await prisma.order.findFirst({ where: { number, email } });
   if (!row) throw new HttpError(404, "We couldn't find an order with those details.");

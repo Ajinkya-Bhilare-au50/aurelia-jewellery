@@ -11,7 +11,7 @@ const schema = z.object({
 
 export const POST = handler(async (req: Request) => {
   const { email, password } = schema.parse(await req.json());
-  await rateLimit(`login:ip:${clientIp()}`, 20, 600);
+  await rateLimit(`login:ip:${await clientIp()}`, 20, 600);
   await rateLimit(`login:email:${email}`, 10, 900);
   const row = await prisma.user.findUnique({ where: { email } });
   if (!row || !(await verifyPassword(password, row.passwordHash))) throw new HttpError(401, "Incorrect email or password.");

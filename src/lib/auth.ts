@@ -21,7 +21,7 @@ export const toPublicUser = (u: User): PublicUser => ({
 
 export async function startSession(user: User) {
   const token = await signSession({ sub: user.id, role: user.role });
-  cookies().set(SESSION_COOKIE, token, {
+  (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -30,13 +30,13 @@ export async function startSession(user: User) {
   });
 }
 
-export function endSession() {
-  cookies().delete(SESSION_COOKIE);
+export async function endSession() {
+  (await cookies()).delete(SESSION_COOKIE);
 }
 
 /** Full user record for the current request, or null. */
 export async function getUser(): Promise<User | null> {
-  const session = await verifySession(cookies().get(SESSION_COOKIE)?.value);
+  const session = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return null;
   const u = await prisma.user.findUnique({ where: { id: session.sub } });
   return u ? toUser(u) : null;

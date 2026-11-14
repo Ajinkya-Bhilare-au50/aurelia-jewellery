@@ -20,7 +20,7 @@ function makeCode(name: string) {
 }
 
 export const POST = handler(async (req: Request) => {
-  await rateLimit(`register:ip:${clientIp()}`, 10, 3600);
+  await rateLimit(`register:ip:${await clientIp()}`, 10, 3600);
   const input = schema.parse(await req.json());
   const [phone, passwordHash] = await Promise.all([verifyPhoneToken(input.phoneToken), hashPassword(input.password)]);
 

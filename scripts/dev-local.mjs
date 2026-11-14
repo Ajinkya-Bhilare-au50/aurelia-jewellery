@@ -72,5 +72,5 @@ if (await portOpen()) {
 npx(["prisma", "migrate", "deploy"]);
 if (fresh) npx(["prisma", "db", "seed"]);
 
-const next = spawn("npx", ["next", "dev", "--turbo"], { stdio: "inherit", env, shell: true });
+const next = spawn("npx", ["next", "dev", "--turbopack"], { stdio: "inherit", env, shell: true });
 next.on("exit", (code) => stop(code ?? 0));

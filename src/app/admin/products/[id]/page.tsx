@@ -5,7 +5,8 @@ import { prisma, toProduct } from "@/lib/db";
 
 export const metadata = { title: "Edit product" };
 
-export default async function EditProduct({ params }: { params: { id: string } }) {
+export default async function EditProduct(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const isNew = params.id === "new";
   const row = isNew ? null : await prisma.product.findUnique({ where: { id: params.id } });
   const product = row ? toProduct(row) : undefined;

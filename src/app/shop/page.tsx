@@ -10,7 +10,8 @@ import { CATEGORY_LABEL } from "@/lib/format";
 
 export const metadata = { title: "Shop fine jewellery" };
 
-export default async function ShopPage({ searchParams }: { searchParams: ShopParams }) {
+export default async function ShopPage(props: { searchParams: Promise<ShopParams> }) {
+  const searchParams = await props.searchParams;
   const { category, list, corrected } = filterProducts(await listShopProducts(), searchParams);
 
   const title = searchParams.q ? `Results for “${searchParams.q}”` : category ? CATEGORY_LABEL[category] : searchParams.sale ? "Special prices" : "All jewellery";

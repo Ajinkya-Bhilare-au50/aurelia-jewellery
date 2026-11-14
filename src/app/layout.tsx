@@ -46,7 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Banner for the live sale ending soonest (that has banner text).
   const bannerSale = live.filter((s) => s.bannerText).sort((a, b) => a.endsAt.localeCompare(b.endsAt))[0];
   const sale = bannerSale ? { text: bannerSale.bannerText!, ends: formatDate(bannerSale.endsAt) } : null;
-  const theme = parseTheme(cookies().get(THEME_COOKIE)?.value);
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
     // Theme comes from a cookie, so the server renders the right palette: no flash on load.
     <html lang="en-IN" data-theme={theme} className={`${display.variable} ${sans.variable}`}>

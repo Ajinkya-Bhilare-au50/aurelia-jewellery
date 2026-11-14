@@ -9,7 +9,11 @@ import { prisma, toOrder } from "@/lib/db";
 
 export const metadata = { title: "Order details" };
 
-export default async function OrderPage({ params, searchParams }: { params: { id: string }; searchParams: { placed?: string } }) {
+export default async function OrderPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ placed?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const user = await getUser();
   if (!user) redirect("/login");
   const row = await prisma.order.findFirst({ where: { id: params.id, ...(user.role === "admin" ? {} : { userId: user.id }) } });

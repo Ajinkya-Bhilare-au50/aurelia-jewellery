@@ -4,13 +4,14 @@ import { prisma, toSale } from "@/lib/db";
 import { HttpError, handler } from "@/lib/http";
 import { saleSchema } from "@/lib/schemas";
 
-type Ctx = { params: { id: string } };
+type Ctx = { params: Promise<{ id: string }> }; // Next 15: params are async
 
 // .strict(): a full edit also contains `active`, so quick actions must match ONLY their own field.
 const quick = z.union([z.object({ active: z.boolean() }).strict(), z.object({ endNow: z.literal(true) }).strict()]);
 
 /** Full edit (same body as create) or a quick action: { active } (pause/resume) or { endNow: true }. */
-export const PATCH = handler(async (req: Request, { params }: Ctx) => {
+export const PATCH = handler(async (req: Request, ctx: Ctx) => {
+  const params = await ctx.params;
   await requireAdmin();
   const body = await req.json();
   const existing = await prisma.sale.findUnique({ where: { id: params.id } });
@@ -34,7 +35,8 @@ export const PATCH = handler(async (req: Request, { params }: Ctx) => {
   return { sale: toSale(row) };
 });
 
-export const DELETE = handler(async (_req: Request, { params }: Ctx) => {
+export const DELETE = handler(async (_req: Request, ctx: Ctx) => {
+  const params = await ctx.params;
   await requireAdmin();
   const res = await prisma.sale.deleteMany({ where: { id: params.id } });
   if (!res.count) throw new HttpError(404, "Sale not found.");

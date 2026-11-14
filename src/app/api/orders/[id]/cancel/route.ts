@@ -13,7 +13,8 @@ const schema = z.object({
 });
 
 /** Customer cancels their own order (or some items of it) before it ships. */
-export const POST = handler(async (req: Request, { params }: { params: { id: string } }) => {
+export const POST = handler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+  const params = await ctx.params;
   const user = await requireUser();
   await rateLimit(`cancel:${user.id}`, 20, 3600);
   const { reason, note, lines } = schema.parse(await req.json());

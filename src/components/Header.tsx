@@ -39,7 +39,7 @@ export function Header({ user, sale, theme }: { user: PublicUser | null; sale?: 
   const [megaOpen, setMegaOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pathname = usePathname();
 
   useEffect(() => {

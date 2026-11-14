@@ -3,9 +3,10 @@
 Read PROJECT_SPEC.md, ARCHITECTURE.md and TASKS.md before changing anything. Going live: DEPLOYMENT.md.
 
 ## Stack
-- Next.js 14 (App Router) + TypeScript + Tailwind CSS 3. Node 19.2 is installed locally, so stay on Next 14 (Next 15+ needs Node ≥ 19.8 / 20).
+- Next.js 15.5 (App Router) + React 19 + TypeScript + Tailwind CSS 3. Requires Node ≥ 20.9 (`engines` in package.json; use Node 22 LTS). Next 14 is end-of-life with unpatched critical CVEs: do not downgrade.
+- Next 15 request APIs are async: `await cookies()`, `await headers()`, `await params`, `await searchParams` (pages AND route handlers: `ctx: { params: Promise<{ id: string }> }`). `clientIp()` and `endSession()` are async.
 - Single Next.js app: UI in `src/app`, backend in `src/app/api/**` route handlers, shared logic in `src/lib`.
-- Data store: Postgres (Neon) via Prisma 5.22 (`prisma/schema.prisma`). Import the client and row→domain mappers (`toUser`, `toProduct`, `toCoupon`, `toOrder`) from `src/lib/db.ts`; never instantiate `PrismaClient` elsewhere. Stay on Prisma 5 (Node 19).
+- Data store: Postgres (Neon) via Prisma 5.22 (`prisma/schema.prisma`). Import the client and row→domain mappers (`toUser`, `toProduct`, `toCoupon`, `toOrder`) from `src/lib/db.ts`; never instantiate `PrismaClient` elsewhere.
 - `DATABASE_URL` / `DIRECT_URL` live in `.env` (Prisma CLI does not read `.env.local`).
 - Mobile OTP: Firebase Phone Auth on the client (`PhoneOtpField`), server verifies the Firebase ID token in `src/lib/phone.ts` (`verifyPhoneToken`). Without Firebase env vars, dev mode shows the OTP on screen (disabled in production).
 

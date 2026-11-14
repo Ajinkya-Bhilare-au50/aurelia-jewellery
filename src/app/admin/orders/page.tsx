@@ -12,7 +12,8 @@ const FILTERS: (OrderStatus | "")[] = ["", "confirmed", "packed", "shipped", "ou
 
 const PAGE_SIZE = 50;
 
-export default async function AdminOrders({ searchParams }: { searchParams: { status?: string; page?: string } }) {
+export default async function AdminOrders(props: { searchParams: Promise<{ status?: string; page?: string }> }) {
+  const searchParams = await props.searchParams;
   const status = FILTERS.includes(searchParams.status as OrderStatus) ? searchParams.status : "";
   const page = Math.max(1, Math.floor(Number(searchParams.page)) || 1);
   const [rows, groups] = await Promise.all([

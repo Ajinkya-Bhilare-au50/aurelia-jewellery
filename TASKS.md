@@ -17,6 +17,7 @@
 - [x] Phase 14 — Admin sales (Diwali etc.): scheduled % / ₹ discounts by all / category / product, banner, coupon stacking rule, pause / resume / end now / edit
 - [x] Phase 15 — Review: oversell race fix (auto-refund), IST dates on UTC servers, coupon expiry TZ, friendly validation errors, admin orders pagination, real newsletter storage, live wishlist prices, mobile overflow fix, lint clean; smart search (typo-tolerant, synonyms, instant suggestions)
 - [x] Phase 16 — Light mode + dark mode toggle (CSS-variable tokens, cookie-persisted, no flash, contrast-checked); shop-page search box
+- [x] Phase 17 — Neon + Firebase connected; demo payments for portfolio; security upgrade Next 14 → 15.5.29 + React 19 + Firebase 13 (clears critical CVEs), Node ≥ 20.9
 
 ## design.md items not yet done
 - [x] Firebase phone OTP authentication (§11): OTP login, OTP-verified signup, link phone on account page

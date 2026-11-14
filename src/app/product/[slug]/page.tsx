@@ -9,12 +9,14 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { prisma, toProduct, withSales } from "@/lib/db";
 import { CATEGORY_LABEL, formatDate, formatINR } from "@/lib/format";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const p = await prisma.product.findUnique({ where: { slug: params.slug }, select: { name: true, description: true } });
   return { title: p?.name ?? "Product", description: p?.description };
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const row = await prisma.product.findUnique({ where: { slug: params.slug } });
   if (!row) notFound();
   const [p, ...related] = await withSales([

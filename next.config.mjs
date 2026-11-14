@@ -10,9 +10,6 @@ const securityHeaders = [
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
-  experimental: {
-    instrumentationHook: true, // src/instrumentation.ts: production config checks at startup
-  },
   images: {
     // Resizing is done by Unsplash's CDN via the loader in src/components/Img.tsx.
     remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
