@@ -1,15 +1,20 @@
 import "server-only";
-import { createHmac, randomInt, randomUUID, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, randomInt, randomUUID, timingSafeEqual } from "crypto";
 import { SignJWT, jwtVerify } from "jose";
+import { createAccount } from "./accounts";
+import { hashPassword } from "./auth";
 import { prisma, toUser } from "./db";
 import { emailConfigured, sendLoginCode } from "./email";
 import { HttpError } from "./http";
 import { rateLimit } from "./rateLimit";
+import type { User } from "./types";
 
 /**
- * Passwordless sign-in by email OTP.
+ * Passwordless sign-in AND sign-up by email OTP.
  *  - 6-digit code, valid 10 minutes, single use; the code is HMAC-ed into a signed challenge (stateless).
- *  - Never reveals whether an email has an account: the response is identical either way.
+ *  - A code is emailed to every address, so the send step never reveals whether an account exists.
+ *    After a correct code: existing account → signed in; new address → short-lived "email verified"
+ *    token used to create the account (name + optional referral code).
  *  - Limits: 3 codes / address / 10 min, 5 guesses / address / 10 min, site-wide daily cap.
  * Without an email transport: dev shows the code on screen; production returns 503.
  */
@@ -37,18 +42,19 @@ export async function startEmailOtp(email: string): Promise<{ challenge: string;
     .setExpirationTime("10m")
     .sign(key());
 
-  const user = await prisma.user.findUnique({ where: { email }, select: { name: true } });
-  if (!user) return { challenge }; // same response as success: no account enumeration
-  if (emailConfigured()) {
-    if (!(await sendLoginCode(email, code, user.name))) throw new HttpError(502, "We couldn't send the email right now. Please try again in a minute.");
-    return { challenge };
+  if (!emailConfigured()) {
+    console.log(`\n[dev email OTP] ${email} → ${code}\n`);
+    return { challenge, devCode: code };
   }
-  console.log(`\n[dev email OTP] ${email} → ${code}\n`);
-  return { challenge, devCode: code };
+  const user = await prisma.user.findUnique({ where: { email }, select: { name: true } });
+  if (!(await sendLoginCode(email, code, user?.name))) throw new HttpError(502, "We couldn't send the email right now. Please try again in a minute.");
+  return { challenge };
 }
 
-/** Returns the signed-in user for a correct, unexpired, unused code. */
-export async function verifyEmailOtp(challenge: string, code: string) {
+export type EmailOtpResult = { user: User } | { signupToken: string; email: string };
+
+/** Correct, unexpired, unused code → the account, or a token to create one. */
+export async function verifyEmailOtp(challenge: string, code: string): Promise<EmailOtpResult> {
   const fail = new HttpError(400, "Incorrect or expired code. Please request a new one.");
   let email: string, h: string, jti: string;
   try {
@@ -69,6 +75,26 @@ export async function verifyEmailOtp(challenge: string, code: string) {
     throw new HttpError(400, "This code has already been used. Please request a new one.");
   }
   const row = await prisma.user.findUnique({ where: { email } });
-  if (!row) throw fail;
-  return toUser(row);
+  if (row) return { user: toUser(row) };
+  const signupToken = await new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(email)
+    .setAudience("email-verified")
+    .setExpirationTime("30m")
+    .sign(key());
+  return { signupToken, email };
+}
+
+/** Create an account for an email proven by `verifyEmailOtp`. No password: sign-in is by email (or mobile) OTP. */
+export async function signupWithEmail(signupToken: string, name: string, referralCode?: string) {
+  let email: string;
+  try {
+    const { payload } = await jwtVerify(signupToken, key(), { algorithms: ["HS256"], audience: "email-verified" });
+    email = String(payload.sub);
+  } catch {
+    throw new HttpError(400, "Your email check has expired. Please request a new code.");
+  }
+  // Random (unknowable) password: this customer signs in with Email OTP, or mobile OTP once a number is linked.
+  const passwordHash = await hashPassword(randomBytes(24).toString("base64url"));
+  return createAccount({ name, email, passwordHash, referralCode });
 }

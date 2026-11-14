@@ -21,7 +21,7 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [method, setMethod] = useState<Method>("otp");
+  const [method, setMethod] = useState<Method>(emailOtp && params.get("method") === "email" ? "emailOtp" : "otp");
   const [phoneToken, setPhoneToken] = useState("");
 
   const isLogin = mode === "login";
@@ -86,11 +86,22 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
         </div>
       ) : isLogin && method === "emailOtp" ? (
         <div className="space-y-5">
-          <EmailOtpField onSignedIn={done} />
+          <EmailOtpField onSignedIn={done} defaultReferral={params.get("ref") ?? ""} />
           {footer}
         </div>
       ) : (
         <form onSubmit={onSubmit} className="space-y-5">
+          {!isLogin && emailOtp && (
+            <p className="flex items-center gap-2 border border-border px-4 py-3 text-[13px] text-secondary">
+              <MailIcon size={15} />
+              <span>
+                Prefer email?{" "}
+                <Link href={`/login?method=email${safeNext ? `&next=${encodeURIComponent(safeNext)}` : ""}${params.get("ref") ? `&ref=${encodeURIComponent(params.get("ref")!)}` : ""}`} className="link text-ivory">
+                  Sign up with just an email code
+                </Link>
+              </span>
+            </p>
+          )}
           {!isLogin && (
             <div>
               <label htmlFor="name" className="field-label">Full name</label>

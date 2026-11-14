@@ -9,7 +9,7 @@ Read PROJECT_SPEC.md, ARCHITECTURE.md and TASKS.md before changing anything. Goi
 - Data store: Postgres (Neon) via Prisma 5.22 (`prisma/schema.prisma`). Import the client and row→domain mappers (`toUser`, `toProduct`, `toCoupon`, `toOrder`) from `src/lib/db.ts`; never instantiate `PrismaClient` elsewhere.
 - `DATABASE_URL` / `DIRECT_URL` live in `.env` (Prisma CLI does not read `.env.local`).
 - Mobile OTP: Firebase Phone Auth on the client (`PhoneOtpField`), server verifies the Firebase ID token in `src/lib/phone.ts` (`verifyPhoneToken`). Alternative: Authkey.io (`NEXT_PUBLIC_OTP_PROVIDER=authkey`, `src/lib/authkey.ts`). Without a provider, dev mode shows the OTP on screen (disabled in production).
-- Email OTP sign-in: `src/lib/emailOtp.ts` + `/api/auth/email-otp/{send,verify}` + `EmailOtpField`. Mail goes through `src/lib/email.ts` (Gmail SMTP via `SMTP_USER`/`SMTP_PASS`, else Resend). The login tab only appears when `emailOtpAvailable()`. Responses must never reveal whether an email has an account.
+- Email OTP sign-in AND sign-up: `src/lib/emailOtp.ts` + `/api/auth/email-otp/{send,verify,signup}` + `EmailOtpField`. A code goes to every address (send step never reveals whether an account exists); after a correct code, existing account → session, new email → signup token → name (+ referral) → account. Account creation for both sign-ups goes through `createAccount` (`src/lib/accounts.ts`). Mail via `src/lib/email.ts` (Gmail SMTP `SMTP_USER`/`SMTP_PASS`, else Resend); the tab only shows when `emailOtpAvailable()`.
 - Roles: `customer | admin | demo_admin` (`src/lib/roles.ts`). `demo_admin` can view admin pages (customer data masked via `src/lib/privacy.ts`) but `requireAdmin()` rejects every change.
 
 ## Rules
