@@ -57,6 +57,12 @@ export const POST = handler(async (req: Request) => {
     }),
   );
 
+  if (!user.phone) {
+    await prisma.user
+      .updateMany({ where: { id: user.id, phone: null }, data: { phone: `+91${input.address.phone}` } })
+      .catch(() => {}); // number already on another account: keep it on the order only
+  }
+
   if (!razorpayEnabled()) {
     return { orderId: order.id, number: order.number, amount: order.total, mode: "demo" as const };
   }

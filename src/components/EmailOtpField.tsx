@@ -17,6 +17,7 @@ export function EmailOtpField({ onSignedIn, defaultReferral = "" }: { onSignedIn
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
   const [referral, setReferral] = useState(defaultReferral);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,8 +74,10 @@ export function EmailOtpField({ onSignedIn, defaultReferral = "" }: { onSignedIn
   const createAccount = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim().length < 2) return setError("Please enter your full name.");
+    const digits = mobile.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+    if (!/^[6-9]\d{9}$/.test(digits)) return setError("Enter a valid 10-digit mobile number.");
     return run(async () => {
-      onSignedIn(await api<AuthRes>("/api/auth/email-otp/signup", { signupToken: signupToken.current, name: name.trim(), referralCode: referral.trim() }));
+      onSignedIn(await api<AuthRes>("/api/auth/email-otp/signup", { signupToken: signupToken.current, name: name.trim(), phone: digits, referralCode: referral.trim() }));
     });
   };
 
@@ -147,6 +150,14 @@ export function EmailOtpField({ onSignedIn, defaultReferral = "" }: { onSignedIn
           <div>
             <label htmlFor="otp-name" className="field-label">Full name</label>
             <input ref={nameInput} id="otp-name" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={60} autoComplete="name" className="input" />
+          </div>
+          <div>
+            <label htmlFor="otp-mobile" className="field-label">Mobile number</label>
+            <div className="flex items-stretch">
+              <span className="flex items-center border border-r-0 border-border bg-surface px-3 text-sm text-secondary">+91</span>
+              <input id="otp-mobile" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={14} required value={mobile} onChange={(e) => setMobile(e.target.value)} className="input min-w-0 flex-1" placeholder="98765 43210" />
+            </div>
+            <p className="mt-2 text-[12px] text-secondary">For delivery updates. We never share it.</p>
           </div>
           <div>
             <label htmlFor="otp-referral" className="field-label">Referral code <span className="normal-case tracking-normal text-secondary">(optional)</span></label>

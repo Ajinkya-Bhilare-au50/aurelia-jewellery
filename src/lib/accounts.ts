@@ -18,6 +18,8 @@ export async function createAccount(input: {
   email: string;
   passwordHash: string;
   phone?: string;
+  /** false = typed in, not OTP-verified (default true when a phone is given) */
+  phoneVerified?: boolean;
   referralCode?: string;
 }): Promise<User> {
   const [emailTaken, phoneTaken] = await Promise.all([
@@ -25,7 +27,7 @@ export async function createAccount(input: {
     input.phone ? prisma.user.findUnique({ where: { phone: input.phone }, select: { id: true } }) : null,
   ]);
   if (emailTaken) throw new HttpError(409, "An account with this email already exists.");
-  if (phoneTaken) throw new HttpError(409, "An account with this mobile number already exists. Sign in with OTP instead.");
+  if (phoneTaken) throw new HttpError(409, "This mobile number is already registered to another account.");
 
   let referredById: string | undefined;
   if (input.referralCode) {
@@ -43,7 +45,7 @@ export async function createAccount(input: {
           name: input.name,
           email: input.email,
           phone: input.phone ?? null,
-          phoneVerifiedAt: input.phone ? new Date() : null,
+          phoneVerifiedAt: input.phone && input.phoneVerified !== false ? new Date() : null,
           passwordHash: input.passwordHash,
           referralCode: makeCode(input.name),
           referredById,

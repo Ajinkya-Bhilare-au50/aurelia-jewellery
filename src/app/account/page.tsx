@@ -5,6 +5,7 @@ import { AvatarEditor } from "@/components/AvatarEditor";
 import { CopyButton } from "@/components/CopyButton";
 import { CouponIcon, GiftIcon, PackageIcon } from "@/components/Icons";
 import { LogoutButton } from "@/components/LogoutButton";
+import { MobileNumberCard } from "@/components/MobileNumberCard";
 import { VerifyPhoneCard } from "@/components/VerifyPhoneCard";
 import { MOBILE_OTP } from "@/lib/features";
 import { StatusBadge } from "@/components/OrderTimeline";
@@ -87,7 +88,7 @@ export default async function AccountPage() {
         </section>
 
         <aside className="space-y-8 lg:col-span-4">
-          {MOBILE_OTP && !user.phone && <VerifyPhoneCard />}
+          {MOBILE_OTP ? !user.phone && <VerifyPhoneCard /> : <MobileNumberCard phone={user.phone} />}
           <section className="border border-gold/30 bg-surface-muted p-8">
             <p className="label !text-gold">Refer a friend</p>
             <p className="h-display mt-3 text-3xl">Give 10%. Get ₹500.</p>

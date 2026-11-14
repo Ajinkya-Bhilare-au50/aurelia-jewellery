@@ -86,7 +86,7 @@ export async function verifyEmailOtp(challenge: string, code: string): Promise<E
 }
 
 /** Create an account for an email proven by `verifyEmailOtp`. No password: sign-in is by email (or mobile) OTP. */
-export async function signupWithEmail(signupToken: string, name: string, referralCode?: string) {
+export async function signupWithEmail(signupToken: string, name: string, phone: string, referralCode?: string) {
   let email: string;
   try {
     const { payload } = await jwtVerify(signupToken, key(), { algorithms: ["HS256"], audience: "email-verified" });
@@ -96,5 +96,5 @@ export async function signupWithEmail(signupToken: string, name: string, referra
   }
   // Random (unknowable) password: this customer signs in with Email OTP, or mobile OTP once a number is linked.
   const passwordHash = await hashPassword(randomBytes(24).toString("base64url"));
-  return createAccount({ name, email, passwordHash, referralCode });
+  return createAccount({ name, email, passwordHash, phone, phoneVerified: false, referralCode });
 }

@@ -13,7 +13,7 @@ export const POST = handler(async (req: Request) => {
   const { phoneToken } = z.object({ phoneToken: z.string().min(10).max(4000) }).parse(await req.json());
   const phone = await verifyPhoneToken(phoneToken);
   const row = await prisma.user.findUnique({ where: { phone } });
-  if (!row) throw new HttpError(404, "No account uses this mobile number yet. Create an account to continue.");
+  if (!row || !row.phoneVerifiedAt) throw new HttpError(404, "No account uses this mobile number yet. Create an account to continue.");
   const user = toUser(row);
   await startSession(user);
   return { user: toPublicUser(user) };
