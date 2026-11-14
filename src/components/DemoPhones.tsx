@@ -9,7 +9,7 @@ export function DemoPhones({ mode, realSms = false }: { mode: "login" | "registe
     <>
       <p className="font-medium text-ivory">Explore the admin panel (read-only)</p>
       <p className="mt-1">
-        Choose <span className="text-ivory">Password</span>: <span className="font-mono text-[12px] text-ivory">{DEMO_ADMIN.email}</span> /{" "}
+        Choose <span className="text-ivory">Email &amp; password</span>: <span className="font-mono text-[12px] text-ivory">{DEMO_ADMIN.email}</span> /{" "}
         <span className="font-mono text-[12px] text-ivory">{DEMO_ADMIN.password}</span>
       </p>
     </>

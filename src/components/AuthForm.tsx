@@ -76,7 +76,7 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
           {tabs.map((m) => (
             <button key={m} type="button" role="tab" aria-selected={method === m} onClick={() => { setMethod(m); setError(""); }} className={`${method === m ? "tab tab-active" : "tab"} inline-flex items-center justify-center gap-2 px-2 tracking-[0.08em] sm:px-4 sm:tracking-[0.14em]`}>
               <span className="hidden sm:inline-flex">{m === "otp" ? <MobileIcon size={15} /> : m === "emailOtp" ? <MailIcon size={15} /> : <KeyIcon size={15} />}</span>
-              {LABELS[m]}
+              {m === "email" && tabs.length < 3 ? "Email & password" : LABELS[m]}
             </button>
           ))}
         </div>
