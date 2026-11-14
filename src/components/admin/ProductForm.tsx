@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/client";
 import type { Product } from "@/lib/types";
+import { ProductImagesField } from "./ProductImagesField";
 
 const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -81,9 +82,7 @@ export function ProductForm({ product }: { product?: Product }) {
       <div><label className="field-label" htmlFor="price">Price (₹)</label><input id="price" name="price" type="number" min={1} required defaultValue={product?.price} className="input" /></div>
       <div><label className="field-label" htmlFor="compareAtPrice">Compare-at price (₹, optional)</label><input id="compareAtPrice" name="compareAtPrice" type="number" min={0} defaultValue={product?.compareAtPrice} className="input" /></div>
       <div className="sm:col-span-2">
-        <label className="field-label" htmlFor="images">Image URLs (one per line)</label>
-        <textarea id="images" name="images" required rows={3} defaultValue={product?.images.join("\n")} className="input h-auto py-3 font-mono text-[13px]" placeholder="https://images.unsplash.com/photo-…" />
-        <p className="mt-2 text-[12px] text-secondary">Only images.unsplash.com URLs are allowed (configured in next.config.mjs).</p>
+        <ProductImagesField initial={product?.images} />
       </div>
       <div className="sm:col-span-2">
         <label className="field-label" htmlFor="description">Description</label>

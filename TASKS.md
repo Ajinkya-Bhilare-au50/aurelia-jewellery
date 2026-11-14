@@ -31,6 +31,6 @@
 - [x] Replace JSON store with Postgres (Neon) + Prisma
 - [x] Razorpay webhook (`payment.captured`) as a backup to client-side verify
 - [x] Transactional emails (order confirmed / shipped / delivered)
-- [ ] Product image upload (Vercel Blob / Cloudinary) — admin is limited to Unsplash URLs
+- [x] Product image upload — stored in Postgres (`ProductImage`), WebP via sharp, resized per width + CDN-cached
 - [ ] Wishlist, product reviews, image upload for admin
 - [ ] Automated tests (Vitest for `pricing.ts` / `orders.ts`, Playwright for checkout)

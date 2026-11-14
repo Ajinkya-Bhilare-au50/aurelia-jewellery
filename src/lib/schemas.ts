@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UPLOADED_RE } from "./productImageUrl";
 
 export const productSchema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -11,8 +12,13 @@ export const productSchema = z.object({
   compareAtPrice: z.coerce.number().int().min(0).max(10_000_000).optional().transform((v) => (v ? v : undefined)),
   stock: z.coerce.number().int().min(0).max(10_000),
   images: z
-    .array(z.string().trim().url().startsWith("https://images.unsplash.com/", "Images must be https://images.unsplash.com/ URLs (see next.config.mjs)"))
-    .min(1, "Add at least one image URL")
+    .array(
+      z
+        .string()
+        .trim()
+        .refine((s) => UPLOADED_RE.test(s) || /^https:\/\/images\.unsplash\.com\/\S+$/.test(s), "Images must be uploaded photos or https://images.unsplash.com/ URLs"),
+    )
+    .min(1, "Add at least one image")
     .max(6),
   description: z.string().trim().min(10).max(1000),
   featured: z.boolean(),

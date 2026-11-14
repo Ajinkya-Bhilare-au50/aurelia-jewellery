@@ -149,3 +149,14 @@ model Counter {
   id    String @id
   value Int
 }
+
+/// Admin-uploaded product photo (WebP, re-encoded and metadata-stripped on upload).
+/// Referenced from Product.images as "/api/images/<id>"; served resized + CDN-cached.
+model ProductImage {
+  id        String   @id
+  data      Bytes
+  mimeType  String
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+}

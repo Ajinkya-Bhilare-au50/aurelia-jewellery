@@ -29,7 +29,7 @@ Read PROJECT_SPEC.md, ARCHITECTURE.md and TASKS.md before changing anything. Goi
 - Visual design follows `design.md` (Dark Luxury). Tokens live in `tailwind.config.ts`: `background`, `surface` (+`-elevated`, `-muted`), `gold` (+`-hover`), `ivory`, `secondary`, `muted`, `border`, `success`, `error`, `warning`. Never hard-code hex values in components.
 - Use the component classes in `globals.css`: `btn-primary` (gold, one per view), `btn-secondary`, `btn-tertiary`, `input`, `field-label`, `card`, `badge`, `tab`/`tab-active`, `h-hero`/`h-page`/`h-section`, `skeleton`, `scroll-x`, `alert-error`/`alert-success`.
 - Spacing on the 4px grid; container = `container-page` (max 1440px; 16–20 / 32 / 48–72px gutters).
-- Images: `next/image` with the Unsplash CDN loader (`src/lib/imageLoader.ts`); only `images.unsplash.com` sources.
+- Images: always render through `Img` (`src/components/Img.tsx`, loader `src/lib/imageLoader.ts`). Product images are either `https://images.unsplash.com/...` (resized by Unsplash's CDN) or admin uploads at `/api/images/<id>` (`ProductImage` table; uploaded via `/api/admin/images`, re-encoded to WebP + metadata-stripped with sharp; served resized by `?w=` and cached immutably). Validation: `productSchema` + `UPLOADED_RE` (`src/lib/productImageUrl.ts`).
 - Keep terminal output short; run `npm run typecheck` and `npm run build` after a phase.
 - Update TASKS.md when a phase finishes. Keep explanations concise.
 

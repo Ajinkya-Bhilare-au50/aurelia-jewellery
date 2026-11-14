@@ -8,6 +8,9 @@ import {
   Camera,
   Check,
   ChevronDown as LChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ImageUp,
   CircleCheck,
   CircleX,
   Clock,
@@ -76,6 +79,9 @@ export const PlusIcon = icon(Plus);
 export const MinusIcon = icon(Minus);
 export const ArrowRight = icon(LArrowRight);
 export const ChevronDown = icon(LChevronDown);
+export const ChevronLeftIcon = icon(ChevronLeft);
+export const ChevronRightIcon = icon(ChevronRight);
+export const UploadIcon = icon(ImageUp);
 export const CheckIcon = icon(Check);
 export const FilterIcon = icon(SlidersHorizontal);
 export const CopyIcon = icon(Copy);
