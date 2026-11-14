@@ -4,7 +4,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { api } from "@/lib/client";
 import { RefreshIcon, SuccessIcon } from "./Icons";
 
-const FIREBASE = Boolean(process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+// Which OTP path the browser uses: Firebase (SMS + reCAPTCHA in the browser) or our server endpoints (Authkey / dev).
+const FIREBASE =
+  process.env.NEXT_PUBLIC_OTP_PROVIDER !== "authkey" && Boolean(process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 const RESEND_AFTER = 30;
 
 type Step = "phone" | "code" | "done";
@@ -55,9 +57,9 @@ export function PhoneOtpField({
         const { sendFirebaseOtp } = await import("@/lib/firebaseClient");
         await sendFirebaseOtp(`+91${digits}`, recaptchaId);
       } else {
-        const res = await api<{ challenge: string; devCode: string }>("/api/auth/otp/send", { phone: digits });
+        const res = await api<{ challenge: string; devCode?: string }>("/api/auth/otp/send", { phone: digits });
         challenge.current = res.challenge;
-        setDevCode(res.devCode);
+        setDevCode(res.devCode ?? "");
       }
       setStep("code");
       setCode("");

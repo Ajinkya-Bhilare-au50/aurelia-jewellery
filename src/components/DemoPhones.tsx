@@ -2,7 +2,7 @@ import { DEMO_ADMIN, DEMO_LOGIN_PHONES, DEMO_OTP, DEMO_SIGNUP_PHONES } from "@/l
 import { InfoIcon, MobileIcon } from "./Icons";
 
 /** "Try it" box for the demo deployment: Firebase test numbers with a fixed OTP (no SMS sent). */
-export function DemoPhones({ mode }: { mode: "login" | "register" }) {
+export function DemoPhones({ mode, realSms = false }: { mode: "login" | "register"; realSms?: boolean }) {
   const phones = mode === "login" ? DEMO_LOGIN_PHONES : DEMO_SIGNUP_PHONES;
   return (
     <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">
@@ -13,7 +13,9 @@ export function DemoPhones({ mode }: { mode: "login" | "register" }) {
       <p className="mt-2">
         {mode === "login"
           ? "This is a demo store. Choose Mobile OTP and use any of these numbers:"
-          : "Real SMS is off in this demo. Verify your mobile with one of these numbers (each can be registered once):"}
+          : realSms
+            ? "Use your own mobile number (you'll get a real SMS), or one of these demo numbers (each can be registered once):"
+            : "Real SMS is off in this demo. Verify your mobile with one of these numbers (each can be registered once):"}
       </p>
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Demo mobile numbers">
         {phones.map((p) => (

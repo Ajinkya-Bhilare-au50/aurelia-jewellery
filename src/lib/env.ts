@@ -16,7 +16,12 @@ export function checkProductionEnv() {
     warn.push("Razorpay TEST keys are in use: no real money will be collected.");
   }
   if (!env.RAZORPAY_WEBHOOK_SECRET) warn.push("RAZORPAY_WEBHOOK_SECRET not set: payments are confirmed only by the browser callback.");
-  if (!env.NEXT_PUBLIC_FIREBASE_API_KEY || !env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) warn.push("Firebase not configured: mobile OTP sign-in and registration will not work.");
+  if (env.NEXT_PUBLIC_OTP_PROVIDER === "authkey") {
+    if (!env.AUTHKEY_API_KEY || !env.AUTHKEY_OTP_SID) warn.push("NEXT_PUBLIC_OTP_PROVIDER=authkey but AUTHKEY_API_KEY / AUTHKEY_OTP_SID are missing: falling back to Firebase / no OTP.");
+    if (env.AUTHKEY_SEND_BASE_URL || env.AUTHKEY_VERIFY_BASE_URL) warn.push("AUTHKEY_*_BASE_URL is set: these are for local tests only and redirect OTP traffic away from Authkey.");
+  } else if (!env.NEXT_PUBLIC_FIREBASE_API_KEY || !env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
+    warn.push("No OTP provider configured (Firebase or Authkey): mobile OTP sign-in and registration will not work.");
+  }
   if (!env.NEXT_PUBLIC_SITE_URL?.startsWith("https://")) warn.push("NEXT_PUBLIC_SITE_URL should be your https:// domain (used in emails, sitemap, referral links).");
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) warn.push("RESEND_API_KEY / EMAIL_FROM not set: order emails are disabled.");
 
