@@ -20,7 +20,8 @@
     "db:stop": "node scripts/dev-local.mjs stop",
     "db:seed:prod": "tsx prisma/seed.ts --production",
     "admin:create": "tsx scripts/admin.ts create",
-    "admin:remove-demo": "tsx scripts/admin.ts remove-demo"
+    "admin:remove-demo": "tsx scripts/admin.ts remove-demo",
+    "demo:accounts": "tsx scripts/demo-accounts.ts"
   },
   "dependencies": {
     "@neon/config": "^1.14.0",
