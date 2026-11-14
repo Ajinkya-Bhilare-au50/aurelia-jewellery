@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { DEMO_LOGIN_EVENT, type DemoLoginDetail } from "./DemoLoginCard";
 import { api } from "@/lib/client";
 import { EmailOtpField } from "./EmailOtpField";
 import { KeyIcon, MailIcon, MobileIcon } from "./Icons";
@@ -27,6 +28,31 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
   const tabs: Method[] = [...(MOBILE_OTP ? (["otp"] as const) : []), ...(emailOtp ? (["emailOtp"] as const) : []), "email"];
   const [method, setMethod] = useState<Method>(emailOtp && params.get("method") === "email" ? "emailOtp" : tabs[0]);
   const [phoneToken, setPhoneToken] = useState("");
+  const [demoFill, setDemoFill] = useState<DemoLoginDetail | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Demo account cards on the login page: switch to email & password and fill the form.
+  useEffect(() => {
+    if (mode !== "login") return;
+    const onDemo = (e: Event) => {
+      setError("");
+      setMethod("email");
+      setDemoFill({ ...(e as CustomEvent<DemoLoginDetail>).detail });
+    };
+    window.addEventListener(DEMO_LOGIN_EVENT, onDemo);
+    return () => window.removeEventListener(DEMO_LOGIN_EVENT, onDemo);
+  }, [mode]);
+  useEffect(() => {
+    if (!demoFill) return;
+    const email = document.getElementById("email") as HTMLInputElement | null;
+    const password = document.getElementById("password") as HTMLInputElement | null;
+    if (!email || !password) return;
+    email.value = demoFill.email;
+    password.value = demoFill.password;
+    rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    rootRef.current?.querySelector<HTMLButtonElement>("form button.btn-primary")?.focus({ preventScroll: true });
+    setDemoFill(null);
+  }, [demoFill, method]);
 
   const isLogin = mode === "login";
   const q = safeNext ? `?next=${encodeURIComponent(safeNext)}` : "";
@@ -70,7 +96,7 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
   const alert = error && <p role="alert" className="border-l-2 border-error bg-error/5 px-4 py-3 text-sm text-error">{error}</p>;
 
   return (
-    <div className="space-y-6">
+    <div ref={rootRef} className="space-y-6">
       {isLogin && (
         <div className={`grid border-b border-border sm:flex ${COLS[tabs.length]}`} role="tablist">
           {tabs.map((m) => (

@@ -1,22 +1,27 @@
-import { DEMO_ADMIN, DEMO_LOGIN_PHONES, DEMO_OTP, DEMO_SIGNUP_PHONES } from "@/lib/demo";
+import { DEMO_ADMIN, DEMO_CUSTOMER, DEMO_LOGIN_PHONES, DEMO_OTP, DEMO_SIGNUP_PHONES } from "@/lib/demo";
+import { DemoLoginCard } from "./DemoLoginCard";
 import { MOBILE_OTP } from "@/lib/features";
 import { InfoIcon, MobileIcon } from "./Icons";
 
 /** "Try it" box for the demo deployment: Firebase test numbers with a fixed OTP (no SMS sent). */
 export function DemoPhones({ mode, realSms = false }: { mode: "login" | "register"; realSms?: boolean }) {
   const phones = mode === "login" ? DEMO_LOGIN_PHONES : DEMO_SIGNUP_PHONES;
-  const admin = (
+  const accounts = (
     <>
-      <p className="font-medium text-ivory">Explore the admin panel (read-only)</p>
-      <p className="mt-1">
-        Choose <span className="text-ivory">Email &amp; password</span>: <span className="font-mono text-[12px] text-ivory">{DEMO_ADMIN.email}</span> /{" "}
-        <span className="font-mono text-[12px] text-ivory">{DEMO_ADMIN.password}</span>
+      <p className="font-medium text-ivory">Try the demo: tap an account to fill the form</p>
+      <div className="mt-3 space-y-2">
+        <DemoLoginCard title="Demo customer" email={DEMO_CUSTOMER.email} password={DEMO_CUSTOMER.password} />
+        <DemoLoginCard title="Admin panel (read-only)" email={DEMO_ADMIN.email} password={DEMO_ADMIN.password} />
+      </div>
+      <p className="mt-3 flex items-start gap-2 text-[12px] text-muted">
+        <InfoIcon size={14} className="mt-0.5 shrink-0" />
+        The demo customer is shared by everyone, so please don&apos;t enter a real address or personal details.
       </p>
     </>
   );
   if (!MOBILE_OTP) {
     if (mode !== "login") return null;
-    return <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">{admin}</div>;
+    return <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">{accounts}</div>;
   }
   return (
     <div className="mt-10 border border-dashed border-gold/50 bg-gold/5 p-5 text-[13px] text-secondary">
@@ -40,7 +45,7 @@ export function DemoPhones({ mode, realSms = false }: { mode: "login" | "registe
         OTP for all: <span className="font-mono text-[13px] font-semibold tracking-[0.2em] text-gold">{DEMO_OTP}</span>
       </p>
       {mode === "login" && (
-        <div className="mt-4 border-t border-border pt-4">{admin}</div>
+        <div className="mt-4 border-t border-border pt-4">{accounts}</div>
       )}
       <p className="mt-3 flex items-start gap-2 text-[12px] text-muted">
         <InfoIcon size={14} className="mt-0.5 shrink-0" />

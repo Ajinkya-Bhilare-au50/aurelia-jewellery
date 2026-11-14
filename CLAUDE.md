@@ -50,3 +50,4 @@ Read PROJECT_SPEC.md, ARCHITECTURE.md and TASKS.md before changing anything. Goi
 ## Seed accounts
 - Admin: `admin@aurelia.test` / `Admin@123`
 - Customer: `ajinkya@aurelia.test` / `Ajinkya@123` (referral code `AJINKYA10`), mobile `9876543210`
+- Live demo (shown on /login, click to fill; created by `npm run demo:accounts`): customer `demo-customer@aurelia.test` / `DemoShop@123` (shared), read-only admin `demo-admin@aurelia.test` / `DemoAdmin@123`
