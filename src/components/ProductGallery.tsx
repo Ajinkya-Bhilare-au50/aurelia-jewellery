@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "@/components/Img";
+import imageLoader from "@/lib/imageLoader";
+import { getImageProps } from "next/image";
 import { useRef, useState } from "react";
+import { preload } from "react-dom";
 import { ImageLightbox } from "./ImageLightbox";
 import { ZoomInIcon } from "./Icons";
 
@@ -16,7 +19,23 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
   const [origin, setOrigin] = useState("50% 50%");
   const [open, setOpen] = useState(false);
   const swipe = useRef<{ x: number; y: number; t: number } | null>(null);
+  const [switched, setSwitched] = useState(false); // fade only when the shopper changes photo, never on first paint
   const many = images.length > 1;
+  const MAIN_SIZES = "(min-width:1024px) 55vw, 100vw";
+
+  /** Once the main photo is in, fetch the others at the same size so swipes/thumbnails are instant. */
+  function warmOthers() {
+    if (!many) return;
+    for (const src of images) {
+      if (src === images[active]) continue;
+      const { props } = getImageProps({ src, alt: "", fill: true, sizes: MAIN_SIZES, loader: imageLoader });
+      preload(props.src, { as: "image", imageSrcSet: props.srcSet, imageSizes: props.sizes, fetchPriority: "low" });
+    }
+  }
+  const show = (i: number) => {
+    setSwitched(true);
+    setActive(i);
+  };
 
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType !== "mouse") return;
@@ -33,7 +52,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
     if (!s || !many) return;
     const dx = e.clientX - s.x;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - s.y)) {
-      setActive((i) => (i + (dx < 0 ? 1 : -1) + images.length) % images.length);
+      show((active + (dx < 0 ? 1 : -1) + images.length) % images.length);
       swipe.current = { x: NaN, y: NaN, t: 0 }; // mark: this gesture was a swipe, not a tap
     }
   }
@@ -51,7 +70,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
       {many && (
         <div className="flex gap-3 md:flex-col" role="tablist" aria-label="Product images">
           {images.map((src, i) => (
-            <button key={src} role="tab" aria-selected={i === active} onClick={() => setActive(i)} aria-label={`Show image ${i + 1} of ${images.length}`}
+            <button key={src} role="tab" aria-selected={i === active} onClick={() => show(i)} aria-label={`Show image ${i + 1} of ${images.length}`}
               className={`relative h-24 w-20 overflow-hidden bg-surface ring-1 ring-offset-2 ring-offset-background transition ${i === active ? "ring-gold" : "ring-transparent opacity-60 hover:opacity-100"}`}>
               <Image src={src} alt="" fill sizes="80px" className="object-cover" />
             </button>
@@ -77,9 +96,10 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
           alt={name}
           fill
           priority
-          sizes="(min-width:1024px) 55vw, 100vw"
+          sizes={MAIN_SIZES}
+          onLoad={warmOthers}
           style={{ transformOrigin: origin }}
-          className={`object-cover transition-transform duration-300 ease-out animate-fade ${hoverZoom ? "scale-[2]" : "scale-100"}`}
+          className={`object-cover transition-transform duration-300 ease-out ${switched ? "animate-fade" : ""} ${hoverZoom ? "scale-[2]" : "scale-100"}`}
         />
         <span className={`pointer-events-none absolute bottom-4 right-4 inline-flex items-center gap-1.5 bg-background/70 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-secondary backdrop-blur transition-opacity ${hoverZoom ? "opacity-0" : "opacity-100"}`}>
           <ZoomInIcon size={13} /> <span className="md:hidden">Tap to zoom</span><span className="hidden md:inline">Click to enlarge</span>
@@ -90,7 +110,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
           </span>
         )}
       </div>
-      {open && <ImageLightbox images={images} name={name} start={active} onClose={(i) => { setActive(i); setOpen(false); }} />}
+      {open && <ImageLightbox images={images} name={name} start={active} onClose={(i) => { if (i !== active) show(i); setOpen(false); }} />}
     </div>
   );
 }

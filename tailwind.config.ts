@@ -41,7 +41,7 @@ const config: Config = {
       maxWidth: { page: "1440px" },
       keyframes: {
         fade: { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "none" } },
-        reveal: { from: { opacity: "0", transform: "scale(1.04)" }, to: { opacity: "1", transform: "none" } },
+        reveal: { from: { transform: "scale(1.04)" }, to: { transform: "none" } },
         shimmer: { "100%": { transform: "translateX(100%)" } },
       },
       animation: {

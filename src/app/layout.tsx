@@ -10,6 +10,7 @@ import { getLiveSales } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 import { THEME_COLOR, THEME_COOKIE, parseTheme } from "@/lib/theme";
 import { cookies } from "next/headers";
+import { preconnect } from "react-dom";
 import "./globals.css";
 
 // Self-hosted fonts (src/fonts): no Google download at build/dev time. §18: only the weights we use.
@@ -42,6 +43,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { colorScheme: "dark light" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  preconnect("https://images.unsplash.com"); // product photos: DNS + TLS before the first <img> is seen
   const [user, live] = await Promise.all([getUser(), getLiveSales()]);
   // Banner for the live sale ending soonest (that has banner text).
   const bannerSale = live.filter((s) => s.bannerText).sort((a, b) => a.endsAt.localeCompare(b.endsAt))[0];
