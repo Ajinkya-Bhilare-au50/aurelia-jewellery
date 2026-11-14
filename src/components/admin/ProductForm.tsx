@@ -53,7 +53,7 @@ export function ProductForm({ product }: { product?: Product }) {
 
   const sel = "input cursor-pointer";
   return (
-    <form onSubmit={onSubmit} className="card grid gap-6 p-6 sm:grid-cols-2 lg:p-8">
+    <form onSubmit={onSubmit} className="card grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 sm:p-6 lg:p-8">
       <div>
         <label className="field-label" htmlFor="name">Name</label>
         <input id="name" name="name" required defaultValue={product?.name} className="input" onChange={(e) => !slugTouched && setSlug(slugify(e.target.value))} />

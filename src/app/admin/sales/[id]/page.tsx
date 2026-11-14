@@ -13,7 +13,7 @@ export default async function EditSale(props: { params: Promise<{ id: string }> 
   return (
     <>
       <Link href="/admin/sales" className="text-[12px] uppercase tracking-[0.14em] text-secondary hover:text-ivory">← Sales</Link>
-      <h1 className="h-display mb-8 mt-3 text-[40px]">{isNew ? "New sale" : `Edit ${row!.name}`}</h1>
+      <h1 className="h-display mb-8 mt-3 break-words text-[32px] sm:text-[40px]">{isNew ? "New sale" : `Edit ${row!.name}`}</h1>
       <SaleForm sale={row ? toSale(row) : undefined} products={products.map(({ id, name, category, price }) => ({ id, name, category, price }))} />
     </>
   );

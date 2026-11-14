@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect("/login?next=/admin");
   if (!canViewAdmin(user.role)) redirect("/account");
   return (
-    <div className="container-page grid gap-8 py-10 lg:grid-cols-[220px_1fr] lg:gap-12 lg:py-12">
+    <div className="container-page grid grid-cols-1 gap-8 py-10 lg:grid-cols-[220px_1fr] lg:gap-12 lg:py-12">
       <AdminNav id={user.id} name={user.name} avatarUrl={user.avatarUrl} />
       <div className="min-w-0">
         {isDemoAdmin(user.role) && (

@@ -31,7 +31,7 @@ export function CouponCreateForm() {
   return (
     <form onSubmit={onSubmit} className="card p-6 lg:p-8">
       <h2 className="font-display text-2xl">Create coupon</h2>
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <div><label className="field-label" htmlFor="code">Code</label><input id="code" name="code" required className="input uppercase" placeholder="FESTIVE15" /></div>
         <div>
           <label className="field-label" htmlFor="type">Type</label>

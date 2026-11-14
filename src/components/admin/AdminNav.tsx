@@ -25,12 +25,13 @@ export function AdminNav({ id, name, avatarUrl }: { id: string; name: string; av
           <p className="mt-1 font-display text-2xl">{name}</p>
         </div>
       </div>
-      <nav className="scroll-x mt-6 flex gap-1 border-b border-border lg:flex-col lg:border-b-0 lg:border-l" aria-label="Admin">
+      {/* Phones/tablets: all five sections as an even row of icon-over-label tabs (nothing hidden off-screen). Desktop: vertical list. */}
+      <nav className="mt-6 grid grid-cols-5 border-b border-border lg:flex lg:flex-col lg:gap-1 lg:border-b-0 lg:border-l" aria-label="Admin">
         {LINKS.map(([href, label, Icon]) => {
           const active = href === "/admin" ? path === href : path.startsWith(href);
           return (
-            <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`-mb-px flex items-center gap-3 whitespace-nowrap border-b-2 px-4 py-3 text-[12px] uppercase tracking-[0.14em] transition-colors lg:-ml-px lg:mb-0 lg:border-b-0 lg:border-l-2 ${active ? "border-gold text-ivory" : "border-transparent text-secondary hover:text-ivory"}`}>
-              <Icon size={16} className={active ? "text-gold" : ""} />
+            <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`-mb-px flex min-w-0 flex-col items-center gap-1.5 border-b-2 px-1 py-2.5 text-[11px] transition-colors sm:flex-row sm:justify-center sm:gap-2 sm:text-[12px] sm:uppercase sm:tracking-[0.12em] lg:-ml-px lg:mb-0 lg:justify-start lg:gap-3 lg:whitespace-nowrap lg:border-b-0 lg:border-l-2 lg:px-4 lg:py-3 lg:tracking-[0.14em] ${active ? "border-gold text-ivory" : "border-transparent text-secondary hover:text-ivory"}`}>
+              <Icon size={18} className={`shrink-0 ${active ? "text-gold" : ""}`} />
               {label}
             </Link>
           );

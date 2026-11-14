@@ -40,7 +40,7 @@ export function StatusUpdater({ orderId, options }: { orderId: string; options: 
         </select>
       </div>
       {status === "shipped" && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="courier" className="field-label">Courier</label>
             <select id="courier" name="courier" required className="input cursor-pointer">{COURIERS.map((c) => <option key={c}>{c}</option>)}</select>

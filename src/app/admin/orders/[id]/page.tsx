@@ -21,7 +21,7 @@ export default async function AdminOrder(props: { params: Promise<{ id: string }
   return (
     <>
       <Link href="/admin/orders" className="text-[12px] uppercase tracking-[0.14em] text-secondary hover:text-ivory">← Orders</Link>
-      <h1 className="h-display mb-8 mt-3 text-[40px]">Order {order.number}</h1>
+      <h1 className="h-display mb-8 mt-3 break-words text-[32px] sm:text-[40px]">Order {order.number}</h1>
       <OrderDetail
         admin
         order={order}

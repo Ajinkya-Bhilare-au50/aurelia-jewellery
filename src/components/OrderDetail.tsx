@@ -13,7 +13,7 @@ const REFUND_TONE: Record<RefundStatus, string> = { pending: "text-warning", pro
 export function OrderDetail({ order, aside, admin = false }: { order: Order; aside?: React.ReactNode; admin?: boolean }) {
   const a = order.address;
   return (
-    <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
       <div className="space-y-10 lg:col-span-7">
         <section className="card p-6 lg:p-8">
           <div className="mb-8 flex items-center justify-between gap-4">

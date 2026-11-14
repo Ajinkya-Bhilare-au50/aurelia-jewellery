@@ -48,7 +48,7 @@ export default async function AdminHome() {
         ))}
       </dl>
 
-      <div className="mt-10 grid gap-10 xl:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-10 xl:grid-cols-3">
         <section className="xl:col-span-2">
           <div className="mb-4 flex items-baseline justify-between">
             <h2 className="font-display text-2xl">Recent orders</h2>

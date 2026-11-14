@@ -79,7 +79,7 @@ export function SaleForm({ sale, products }: { sale?: Sale; products: ProductLit
         </div>
       )}
 
-      <section className="card grid gap-6 p-6 sm:grid-cols-2 lg:p-8">
+      <section className="card grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 sm:p-6 lg:p-8">
         <div>
           <label className="field-label" htmlFor="name">Sale name</label>
           <input id="name" required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Diwali Sale" className="input" />

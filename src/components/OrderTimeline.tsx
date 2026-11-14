@@ -37,7 +37,7 @@ export function OrderTimeline({ status, timeline, courier, awb }: { status: Orde
                 <span className={`relative z-10 grid h-9 w-9 place-items-center rounded-full border ${done ? "border-gold bg-gold text-background" : "border-border bg-surface text-muted"} ${i === reached ? "ring-4 ring-gold/20" : ""}`}>
                   <Icon size={16} strokeWidth={done ? 1.9 : 1.5} />
                 </span>
-                <span className={`mt-3 px-1 text-[10px] uppercase leading-tight tracking-[0.1em] sm:text-[11px] ${done ? "text-ivory" : "text-muted"}`}>{STATUS_LABEL[s].replace("Order ", "")}</span>
+                <span className={`mt-3 break-words px-0.5 text-[11px] leading-tight sm:px-1 sm:uppercase sm:tracking-[0.1em] ${done ? "text-ivory" : "text-muted"}`}>{((l) => l[0].toUpperCase() + l.slice(1))(STATUS_LABEL[s].replace("Order ", ""))}</span>
               </li>
             );
           })}
@@ -45,9 +45,9 @@ export function OrderTimeline({ status, timeline, courier, awb }: { status: Orde
       )}
 
       {courier && awb && (
-        <p className="mt-8 flex items-center gap-3 border border-border bg-surface px-5 py-4 text-sm">
+        <p className="mt-8 flex items-start gap-3 border border-border bg-surface px-5 py-4 text-sm">
           <TruckIcon size={18} className="shrink-0 text-gold" />
-          Shipped with <strong className="font-medium">{courier}</strong> · AWB <span className="font-mono tracking-wide">{awb}</span>
+          <span>Shipped with <strong className="font-medium">{courier}</strong> · AWB <span className="break-all font-mono tracking-wide">{awb}</span></span>
         </p>
       )}
 

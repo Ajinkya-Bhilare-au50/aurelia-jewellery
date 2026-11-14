@@ -14,7 +14,7 @@ export default async function EditProduct(props: { params: Promise<{ id: string 
   return (
     <>
       <Link href="/admin/products" className="text-[12px] uppercase tracking-[0.14em] text-secondary hover:text-ivory">← Products</Link>
-      <h1 className="h-display mb-8 mt-3 text-[40px]">{product ? product.name : "New product"}</h1>
+      <h1 className="h-display mb-8 mt-3 break-words text-[32px] sm:text-[40px]">{product ? product.name : "New product"}</h1>
       <ProductForm product={product} />
     </>
   );
