@@ -1,0 +1,9 @@
+# Never upload local secrets, the local database or build caches (Vercel builds from source).
+.env
+.env.*
+!.env.example
+.data
+.next
+node_modules
+.vercel
+*.tsbuildinfo
