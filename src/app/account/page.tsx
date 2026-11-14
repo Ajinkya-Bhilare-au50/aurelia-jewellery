@@ -54,7 +54,7 @@ export default async function AccountPage() {
         </p>
       )}
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-12">
+      <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-12">
         <section className="lg:col-span-8">
           <h2 className="flex items-center gap-3 font-display text-3xl"><PackageIcon size={24} className="text-gold" /> Orders</h2>
           {orders.length === 0 ? (
@@ -93,8 +93,8 @@ export default async function AccountPage() {
             <p className="label !text-gold">Refer a friend</p>
             <p className="h-display mt-3 text-3xl">Give 10%. Get ₹500.</p>
             <p className="mt-3 text-sm text-ivory/70">Friends get 10% off their first order. You get a ₹500 coupon once their order is confirmed.</p>
-            <div className="mt-6 flex items-center justify-between border border-dashed border-gold/50 px-4 py-3">
-              <span className="font-display text-2xl tracking-[0.18em]">{user.referralCode}</span>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border border-dashed border-gold/50 px-4 py-3">
+              <span className="min-w-0 break-all font-display text-2xl tracking-[0.18em]">{user.referralCode}</span>
               <CopyButton text={shareLink} label="Copy link" />
             </div>
             <p className="mt-3 text-[12px] text-ivory/50">{referred} {referred === 1 ? "friend has" : "friends have"} joined with your code</p>

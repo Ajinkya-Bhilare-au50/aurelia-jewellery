@@ -8,6 +8,7 @@ import { img } from "@/lib/format";
 import type { PublicUser } from "@/lib/types";
 import { useCart } from "./CartProvider";
 import { Avatar } from "./Avatar";
+import { LogoutButton } from "./LogoutButton";
 import { SearchPanel } from "./SearchPanel";
 import { ThemeToggle } from "./ThemeToggle";
 import type { Theme } from "@/lib/theme";
@@ -159,12 +160,12 @@ export function Header({ user, sale, theme }: { user: PublicUser | null; sale?: 
       {/* Mobile slide-in navigation */}
       <div className={`fixed inset-0 z-50 overflow-hidden lg:hidden ${menuOpen ? "" : "pointer-events-none"}`} aria-hidden={!menuOpen}>
         <div className={`absolute inset-0 bg-black/70 transition-opacity duration-300 ${menuOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setMenuOpen(false)} />
-        <nav className={`absolute left-0 top-0 flex h-full w-[86%] max-w-[360px] flex-col bg-surface-elevated transition-transform duration-300 ease-out ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-label="Mobile">
+        <nav className={`absolute left-0 top-0 flex h-full w-[86%] max-w-[360px] flex-col overflow-y-auto overscroll-contain bg-surface-elevated transition-transform duration-300 ease-out ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-label="Mobile">
           <div className="flex h-16 items-center justify-between border-b border-border px-5">
             <span className="font-display text-xl tracking-[0.3em]">AURELIA</span>
             <button aria-label="Close menu" className="icon-btn -mr-3" onClick={() => setMenuOpen(false)} tabIndex={t}><CloseIcon /></button>
           </div>
-          <ul className="flex-1 overflow-y-auto px-5 py-2">
+          <ul className="flex-1 px-5 py-2">
             {[{ href: "/shop", label: "Shop all" }, ...CATEGORIES, { href: "/shop?sort=newest", label: "New arrivals" }].map((n) => (
               <li key={n.href} className="border-b border-border">
                 <Link href={n.href} tabIndex={t} className="flex min-h-[56px] items-center font-display text-[26px] text-ivory">{n.label}</Link>
@@ -176,6 +177,15 @@ export function Header({ user, sale, theme }: { user: PublicUser | null; sale?: 
             <Link href="/wishlist" tabIndex={t} className="flex min-h-[44px] items-center gap-3 hover:text-ivory"><HeartIcon /> Wishlist</Link>
             <Link href="/track" tabIndex={t} className="flex min-h-[44px] items-center gap-3 hover:text-ivory"><TruckIcon /> Track your order</Link>
             <ThemeToggle initial={theme} withLabel tabIndex={t} className="flex min-h-[44px] items-center gap-3 text-left hover:text-ivory" />
+            {user && (
+              <LogoutButton
+                withIcon
+                iconSize={20}
+                tabIndex={t}
+                onSignedOut={() => setMenuOpen(false)}
+                className="mt-1 flex min-h-[44px] items-center gap-3 border-t border-border pt-2 text-left transition-colors hover:text-error disabled:opacity-60"
+              />
+            )}
           </div>
         </nav>
       </div>
