@@ -1,4 +1,4 @@
-export type Role = "customer" | "admin";
+export type Role = "customer" | "admin" | "demo_admin"; // demo_admin: read-only admin panel (portfolio demo)
 export type Category = "rings" | "necklaces" | "earrings" | "bracelets";
 export type Metal = "Gold" | "Rose Gold" | "Silver" | "Platinum";
 

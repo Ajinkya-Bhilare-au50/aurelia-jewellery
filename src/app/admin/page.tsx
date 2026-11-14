@@ -5,6 +5,9 @@ import { Avatar } from "@/components/Avatar";
 import { AwardIcon, CardIcon, PackageCheckIcon, UsersIcon } from "@/components/Icons";
 import { customerSelect, prisma, toCustomer, toOrder, toProduct } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/format";
+import { getUser } from "@/lib/auth";
+import { maskName, maskOrder } from "@/lib/privacy";
+import { isDemoAdmin } from "@/lib/roles";
 
 export const metadata = { title: "Overview" };
 
@@ -20,7 +23,11 @@ export default async function AdminHome() {
   const revenue = (agg._sum.total ?? 0) - (agg._sum.refundedAmount ?? 0); // net of partial-cancellation refunds
   const paid = { length: agg._count };
   const lowStock = lowStockRows.map(toProduct);
-  const recent = recentRows.map((r) => ({ ...toOrder(r), customer: toCustomer(r.user) }));
+  const readOnly = isDemoAdmin((await getUser())?.role);
+  const recent = recentRows.map((r) => {
+    const o = { ...toOrder(r), customer: toCustomer(r.user) };
+    return readOnly ? { ...maskOrder(o), customer: { ...o.customer, name: maskName(o.customer.name), avatarUrl: undefined } } : o;
+  });
 
   const stats = [
     ["Revenue", formatINR(revenue), CardIcon],

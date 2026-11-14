@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { canViewAdmin } from "@/lib/roles";
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
 export async function middleware(req: NextRequest) {
@@ -10,7 +11,7 @@ export async function middleware(req: NextRequest) {
     url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);
   }
-  if (pathname.startsWith("/admin") && session.role !== "admin") {
+  if (pathname.startsWith("/admin") && !canViewAdmin(session.role)) {
     return NextResponse.redirect(new URL("/account", req.url));
   }
   return NextResponse.next();

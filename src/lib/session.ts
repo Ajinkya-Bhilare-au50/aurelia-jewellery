@@ -1,12 +1,14 @@
 // Edge-safe JWT helpers (used by middleware and server code).
 import { SignJWT, jwtVerify } from "jose";
+import { parseRole } from "./roles";
+import type { Role } from "./types";
 
 export const SESSION_COOKIE = "aurelia_session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export interface SessionPayload {
   sub: string;
-  role: "customer" | "admin";
+  role: Role;
 }
 
 function secret() {
@@ -29,7 +31,7 @@ export async function verifySession(token: string | undefined): Promise<SessionP
   try {
     const { payload } = await jwtVerify(token, secret(), { algorithms: ["HS256"] });
     if (typeof payload.sub !== "string") return null;
-    return { sub: payload.sub, role: payload.role === "admin" ? "admin" : "customer" };
+    return { sub: payload.sub, role: parseRole(payload.role) };
   } catch {
     return null;
   }

@@ -8,6 +8,9 @@ export const DEMO_LOGIN_PHONES = ["98765 43210", "98765 43211", "98765 43212", "
 /** Left unregistered so visitors can try sign-up; each can be registered once. */
 export const DEMO_SIGNUP_PHONES = ["98765 43215", "98765 43216", "98765 43217", "98765 43218", "98765 43219"];
 
+/** Public read-only admin (role demo_admin): browses the admin panel, every change is refused, customer data masked. */
+export const DEMO_ADMIN = { email: "demo-admin@aurelia.test", password: "DemoAdmin@123", name: "Demo Admin (read-only)" };
+
 /**
  * Show demo hints only on a demo deployment (local dev, or ALLOW_DEMO_PAYMENTS=true in production).
  * A real shop with real payments never shows them.

@@ -6,7 +6,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { DEMO_LOGIN_PHONES } from "../src/lib/demo";
+import { DEMO_ADMIN, DEMO_LOGIN_PHONES } from "../src/lib/demo";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +33,26 @@ const prisma = new PrismaClient();
       },
     });
     console.log(`✓ ${display}: created Demo Customer ${n}`);
+  }
+  // Read-only demo admin (public credentials are safe: role demo_admin can't change anything).
+  const admin = await prisma.user.findUnique({ where: { email: DEMO_ADMIN.email }, select: { role: true } });
+  if (admin && admin.role !== "demo_admin") {
+    console.log(`! ${DEMO_ADMIN.email} exists with role ${admin.role}; not changed`);
+  } else {
+    await prisma.user.upsert({
+      where: { email: DEMO_ADMIN.email },
+      update: { role: "demo_admin", passwordHash: await bcrypt.hash(DEMO_ADMIN.password, 10) },
+      create: {
+        id: `u_demoadmin_${crypto.randomBytes(3).toString("hex")}`,
+        name: DEMO_ADMIN.name,
+        email: DEMO_ADMIN.email,
+        role: "demo_admin",
+        passwordHash: await bcrypt.hash(DEMO_ADMIN.password, 10),
+        referralCode: `DEMOADM${crypto.randomBytes(2).toString("hex").toUpperCase()}`,
+        referralDiscountUsed: true,
+      },
+    });
+    console.log(`✓ ${DEMO_ADMIN.email}: read-only demo admin ready`);
   }
 })()
   .catch((e) => {

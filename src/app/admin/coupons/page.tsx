@@ -3,12 +3,19 @@ import { CouponActions, CouponCreateForm } from "@/components/admin/CouponManage
 import { Avatar } from "@/components/Avatar";
 import { customerSelect, prisma, toCoupon, toCustomer } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/format";
+import { getUser } from "@/lib/auth";
+import { maskName } from "@/lib/privacy";
+import { isDemoAdmin } from "@/lib/roles";
 
 export const metadata = { title: "Coupons" };
 
 export default async function AdminCoupons() {
   const rows = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" }, include: { owner: customerSelect } });
-  const coupons = rows.map((r) => ({ ...toCoupon(r), owner: r.owner ? toCustomer(r.owner) : null }));
+  const readOnly = isDemoAdmin((await getUser())?.role);
+  const coupons = rows.map((r) => {
+    const owner = r.owner ? toCustomer(r.owner) : null;
+    return { ...toCoupon(r), owner: owner && readOnly ? { ...owner, name: maskName(owner.name), avatarUrl: undefined } : owner };
+  });
   const now = Date.now();
   return (
     <>

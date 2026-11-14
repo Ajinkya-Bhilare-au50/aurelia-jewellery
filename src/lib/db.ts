@@ -2,6 +2,7 @@ import "server-only";
 import { PrismaClient, type Prisma } from "@prisma/client";
 import { cache } from "react";
 import { avatarSrc } from "./avatar";
+import { parseRole } from "./roles";
 import { applySales } from "./sales";
 import type { Address, Coupon, Order, OrderItem, OrderStatus, Product, Refund, Sale, TimelineEntry, User } from "./types";
 
@@ -30,7 +31,7 @@ export function toUser(u: Prisma.UserGetPayload<object>): User {
     phone: opt(u.phone),
     phoneVerified: Boolean(u.phoneVerifiedAt),
     passwordHash: u.passwordHash,
-    role: u.role === "admin" ? "admin" : "customer",
+    role: parseRole(u.role),
     referralCode: u.referralCode,
     referredBy: opt(u.referredById),
     referralDiscountUsed: u.referralDiscountUsed,

@@ -5,6 +5,9 @@ import { Avatar } from "@/components/Avatar";
 import { customerSelect, prisma, toCustomer, toOrder } from "@/lib/db";
 import { STATUS_LABEL, formatDate, formatINR } from "@/lib/format";
 import type { OrderStatus } from "@/lib/types";
+import { getUser } from "@/lib/auth";
+import { maskName, maskOrder } from "@/lib/privacy";
+import { isDemoAdmin } from "@/lib/roles";
 
 export const metadata = { title: "Orders" };
 
@@ -20,7 +23,11 @@ export default async function AdminOrders(props: { searchParams: Promise<{ statu
     prisma.order.findMany({ where: status ? { status } : {}, orderBy: { createdAt: "desc" }, include: { user: customerSelect }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
     prisma.order.groupBy({ by: ["status"], _count: true }),
   ]);
-  const orders = rows.map((r) => ({ ...toOrder(r), customer: toCustomer(r.user) }));
+  const readOnly = isDemoAdmin((await getUser())?.role);
+  const orders = rows.map((r) => {
+    const o = { ...toOrder(r), customer: toCustomer(r.user) };
+    return readOnly ? { ...maskOrder(o), customer: { ...o.customer, name: maskName(o.customer.name), avatarUrl: undefined } } : o;
+  });
   const countFor = (f: string) => groups.reduce((n, g) => n + (!f || g.status === f ? g._count : 0), 0);
   const total = countFor(status ?? "");
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));

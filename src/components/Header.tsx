@@ -13,6 +13,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import type { Theme } from "@/lib/theme";
 import { BagIcon, ChevronDown, CloseIcon, HeartIcon, MenuIcon, SaleIcon, SearchIcon, TruckIcon, UserIcon } from "./Icons";
 import { useWishlist } from "./WishlistProvider";
+import { canViewAdmin } from "@/lib/roles";
 
 const CATEGORIES = [
   { href: "/shop?category=rings", label: "Rings" },
@@ -71,7 +72,7 @@ export function Header({ user, sale, theme }: { user: PublicUser | null; sale?: 
 
   const closeSearch = useCallback(() => setSearchOpen(false), []);
 
-  const accountHref = user ? (user.role === "admin" ? "/admin" : "/account") : "/login";
+  const accountHref = user ? (canViewAdmin(user.role) ? "/admin" : "/account") : "/login";
   const navLink = "relative py-2 text-[12px] font-medium uppercase tracking-[0.16em] text-secondary transition-colors hover:text-ivory";
   const t = menuOpen ? 0 : -1;
 

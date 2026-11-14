@@ -6,6 +6,7 @@ import { useState } from "react";
 import { api } from "@/lib/client";
 import { MailIcon, MobileIcon } from "./Icons";
 import { PhoneOtpField } from "./PhoneOtpField";
+import { canViewAdmin } from "@/lib/roles";
 
 type AuthRes = { user: { role: string } };
 
@@ -23,7 +24,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const q = safeNext ? `?next=${encodeURIComponent(safeNext)}` : "";
 
   function done(res: AuthRes) {
-    router.replace(safeNext ?? (res.user.role === "admin" ? "/admin" : "/account"));
+    router.replace(safeNext ?? (canViewAdmin(res.user.role) ? "/admin" : "/account"));
     router.refresh();
   }
 

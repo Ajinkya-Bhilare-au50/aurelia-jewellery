@@ -11,6 +11,7 @@ import { getUser } from "@/lib/auth";
 import { prisma, toCoupon, toOrder } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/format";
 import { couponProblem, referralEligible } from "@/lib/pricing";
+import { canViewAdmin } from "@/lib/roles";
 
 export const metadata = { title: "My account" };
 
@@ -40,7 +41,7 @@ export default async function AccountPage() {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          {user.role === "admin" && <Link href="/admin" className="btn-primary btn-sm">Admin dashboard</Link>}
+          {canViewAdmin(user.role) && <Link href="/admin" className="btn-primary btn-sm">Admin dashboard</Link>}
           <LogoutButton withIcon />
         </div>
       </div>
