@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ImageUp,
+  Download,
   CircleCheck,
   CircleX,
   Clock,
@@ -82,6 +83,7 @@ export const ChevronDown = icon(LChevronDown);
 export const ChevronLeftIcon = icon(ChevronLeft);
 export const ChevronRightIcon = icon(ChevronRight);
 export const UploadIcon = icon(ImageUp);
+export const DownloadIcon = icon(Download);
 export const CheckIcon = icon(Check);
 export const FilterIcon = icon(SlidersHorizontal);
 export const CopyIcon = icon(Copy);

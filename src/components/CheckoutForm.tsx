@@ -7,14 +7,13 @@ import { useState } from "react";
 import { api } from "@/lib/client";
 import { formatINR } from "@/lib/format";
 import type { PaymentMode } from "@/lib/razorpay";
-import type { Address } from "@/lib/types";
+import type { Address, SavedAddress } from "@/lib/types";
+import { AddressFields, addressLines } from "./AddressFields";
 import { toCartPayload, useCart } from "./CartProvider";
-import { InfoIcon, ShieldIcon, TrashIcon } from "./Icons";
+import { InfoIcon, PlusIcon, ShieldIcon, TrashIcon } from "./Icons";
 import { OrderSummary } from "./OrderSummary";
 import { QtyStepper } from "./QtyStepper";
 import { useQuote } from "./useQuote";
-
-const STATES = ["Andhra Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Tamil Nadu", "Telangana", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
 
 type CheckoutRes =
   | { mode: "demo"; orderId: string; number: string; amount: number }
@@ -37,7 +36,11 @@ function loadRazorpay() {
   });
 }
 
-export function CheckoutForm({ email, defaultAddress, mode }: { email: string; defaultAddress: Partial<Address>; mode: PaymentMode }) {
+const ADDRESS_KEYS = ["name", "phone", "line1", "line2", "city", "state", "pincode"] as const;
+
+export function CheckoutForm({ email, defaultAddress, savedAddresses = [], mode }: { email: string; defaultAddress: Partial<Address>; savedAddresses?: SavedAddress[]; mode: PaymentMode }) {
+  // Which address to ship to: a saved one (its id) or "new" (the form below).
+  const [shipTo, setShipTo] = useState<string>(savedAddresses[0]?.id ?? "new");
   const router = useRouter();
   const { lines, coupon, ready, clear, setQty, remove } = useCart();
   const { quote, error: quoteError, loading } = useQuote();
@@ -56,9 +59,12 @@ export function CheckoutForm({ email, defaultAddress, mode }: { email: string; d
     e.preventDefault();
     setError("");
     setBusy(true);
-    const address = Object.fromEntries(new FormData(e.currentTarget)) as unknown as Address;
+    const fd = new FormData(e.currentTarget);
+    const chosen = savedAddresses.find((a) => a.id === shipTo);
+    const address = (chosen ? Object.fromEntries(ADDRESS_KEYS.map((k) => [k, chosen[k] ?? ""])) : Object.fromEntries(ADDRESS_KEYS.map((k) => [k, String(fd.get(k) ?? "")]))) as unknown as Address;
+    const saveAddress = !chosen && fd.get("saveAddress") === "on";
     try {
-      const res = await api<CheckoutRes>("/api/checkout", { lines: toCartPayload(lines), couponCode: coupon || undefined, address });
+      const res = await api<CheckoutRes>("/api/checkout", { lines: toCartPayload(lines), couponCode: coupon || undefined, address, saveAddress });
       if (res.mode === "demo") {
         setDemo(res);
         return;
@@ -92,13 +98,6 @@ export function CheckoutForm({ email, defaultAddress, mode }: { email: string; d
       </div>
     );
 
-  // `className` styles the wrapper (grid span); the input always keeps the `input` style.
-  const field = (name: keyof Address, label: string, { className, ...props }: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
-    <div className={className}>
-      <label htmlFor={name} className="field-label">{label}</label>
-      <input id={name} name={name} defaultValue={defaultAddress[name] ?? ""} {...props} className="input" />
-    </div>
-  );
 
   return (
     <div className="container-page py-12 lg:py-16">
@@ -107,29 +106,47 @@ export function CheckoutForm({ email, defaultAddress, mode }: { email: string; d
       </nav>
       <h1 className="h-display mt-4 h-page">Checkout</h1>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-16">
+      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
         <form id="checkout" onSubmit={onSubmit} className="lg:col-span-7">
           <section>
             <h2 className="font-display text-2xl">Contact</h2>
             <p className="mt-2 text-sm text-secondary">Order updates will be sent to <span className="text-ivory">{email}</span></p>
           </section>
           <section className="mt-10">
-            <h2 className="font-display text-2xl">Shipping address</h2>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2">
-              {field("name", "Full name", { required: true, autoComplete: "name" })}
-              {field("phone", "Mobile number", { required: true, inputMode: "numeric", pattern: "[6-9][0-9]{9}", maxLength: 10, autoComplete: "tel-national", title: "10-digit Indian mobile number" })}
-              {field("line1", "Address", { required: true, autoComplete: "address-line1", placeholder: "House no., building, street", className: "sm:col-span-2" })}
-              {field("line2", "Landmark / area (optional)", { autoComplete: "address-line2", className: "sm:col-span-2" })}
-              {field("city", "City", { required: true, autoComplete: "address-level2" })}
-              {field("pincode", "PIN code", { required: true, inputMode: "numeric", pattern: "[1-9][0-9]{5}", maxLength: 6, autoComplete: "postal-code", title: "6-digit PIN code" })}
-              <div className="sm:col-span-2">
-                <label htmlFor="state" className="field-label">State</label>
-                <select id="state" name="state" required defaultValue={defaultAddress.state ?? ""} className="input cursor-pointer">
-                  <option value="" disabled>Select state</option>
-                  {STATES.map((s) => <option key={s}>{s}</option>)}
-                </select>
-              </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="font-display text-2xl">Shipping address</h2>
+              {savedAddresses.length > 0 && <Link href="/account#addresses" className="text-[12px] uppercase tracking-[0.12em] link">Manage</Link>}
             </div>
+            {savedAddresses.length > 0 && (
+              <div role="radiogroup" aria-label="Saved addresses" className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {savedAddresses.map((a) => {
+                  const [name, ...rest] = addressLines(a);
+                  const on = shipTo === a.id;
+                  return (
+                    <label key={a.id} className={`relative flex cursor-pointer gap-3 border p-4 text-sm transition-colors ${on ? "border-gold bg-gold/5" : "border-border hover:border-muted"}`}>
+                      <input type="radio" name="shipTo" value={a.id} checked={on} onChange={() => setShipTo(a.id)} className="mt-1 h-4 w-4 shrink-0 accent-gold" />
+                      <span className="min-w-0">
+                        <span className="flex flex-wrap items-center gap-2 font-medium text-ivory">{name}{a.isDefault && <span className="badge bg-gold/10 text-gold">Default</span>}</span>
+                        {rest.map((l) => <span key={l} className="mt-0.5 block break-words text-secondary">{l}</span>)}
+                      </span>
+                    </label>
+                  );
+                })}
+                <label className={`flex cursor-pointer items-center gap-3 border border-dashed p-4 text-sm transition-colors ${shipTo === "new" ? "border-gold bg-gold/5" : "border-border hover:border-muted"}`}>
+                  <input type="radio" name="shipTo" value="new" checked={shipTo === "new"} onChange={() => setShipTo("new")} className="h-4 w-4 shrink-0 accent-gold" />
+                  <span className="inline-flex items-center gap-2 text-ivory"><PlusIcon size={16} /> Deliver to a new address</span>
+                </label>
+              </div>
+            )}
+            {shipTo === "new" && (
+              <div className="mt-6">
+                <AddressFields defaults={savedAddresses.length ? {} : defaultAddress} />
+                <label className="mt-5 flex cursor-pointer items-center gap-3 text-sm">
+                  <input type="checkbox" name="saveAddress" defaultChecked className="h-4 w-4 accent-gold" />
+                  Save this address for next time
+                </label>
+              </div>
+            )}
           </section>
           {mode === "demo" ? (
             <section className="mt-10 flex items-start gap-4 border border-gold/50 bg-gold/5 p-5">

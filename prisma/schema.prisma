@@ -27,6 +27,7 @@ model User {
   orders               Order[]
   coupons              Coupon[]
   avatar               UserAvatar?
+  addresses            SavedAddress[]
 
   @@index([referredById])
 }
@@ -159,4 +160,23 @@ model ProductImage {
   width     Int
   height    Int
   createdAt DateTime @default(now())
+}
+
+/// Customer address book (checkout picker + account page). One may be the default.
+model SavedAddress {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String // 10 digits, no +91
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

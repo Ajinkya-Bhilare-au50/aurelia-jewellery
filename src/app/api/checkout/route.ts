@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { addressSchema, saveAddress } from "@/lib/addresses";
 import { requireUser } from "@/lib/auth";
 import { nextCounter, prisma, toOrder, uid } from "@/lib/db";
 import { HttpError, handler } from "@/lib/http";
@@ -9,15 +10,9 @@ import { createRazorpayOrder, demoPaymentsAllowed, razorpayEnabled, razorpayKeyI
 const schema = z.object({
   lines: z.array(cartLineSchema).min(1).max(50),
   couponCode: z.string().max(40).optional(),
-  address: z.object({
-    name: z.string().trim().min(2, "Enter the recipient's name").max(60),
-    phone: z.string().trim().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
-    line1: z.string().trim().min(3, "Enter your address").max(120),
-    line2: z.string().trim().max(120).optional(),
-    city: z.string().trim().min(2, "Enter your city").max(60),
-    state: z.string().trim().min(2, "Choose your state").max(60),
-    pincode: z.string().trim().regex(/^[1-9]\d{5}$/, "Enter a valid 6-digit PIN code"),
-  }),
+  address: addressSchema,
+  /** add this address to the customer's address book */
+  saveAddress: z.boolean().optional(),
 });
 
 export const POST = handler(async (req: Request) => {
@@ -56,6 +51,11 @@ export const POST = handler(async (req: Request) => {
       });
     }),
   );
+
+  if (input.saveAddress) {
+    // Best effort: a full address book (or any error) must never block the order.
+    await saveAddress(user.id, input.address).catch(() => {});
+  }
 
   if (!user.phone) {
     await prisma.user

@@ -8,7 +8,10 @@ export const SITE = {
   hours: "Mon to Sat, 11am to 8pm",
   email: "care@example.com", // TODO: support email
   phone: "+91 00000 00000", // TODO: support phone
-  gstin: "", // TODO: GSTIN (shown on legal pages when set)
+  gstin: "", // TODO: GSTIN (shown on legal pages and invoices when set)
+  state: "Maharashtra", // where the business is registered: decides CGST+SGST (same state) vs IGST on invoices
+  gstRatePct: 3, // GST on gold/silver/diamond jewellery (prices on the site include it)
+  hsn: "7113", // HSN code: articles of jewellery
   grievanceOfficer: "", // TODO: name of grievance officer (Consumer Protection (E-Commerce) Rules, 2020)
   jurisdiction: "Mumbai, Maharashtra",
   returnDays: 15,

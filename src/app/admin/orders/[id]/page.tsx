@@ -9,6 +9,8 @@ import { allowedNext } from "@/lib/orders";
 import { getUser } from "@/lib/auth";
 import { maskOrder } from "@/lib/privacy";
 import { isDemoAdmin } from "@/lib/roles";
+import { DownloadIcon } from "@/components/Icons";
+import { invoiceAvailable } from "@/lib/invoice";
 
 export const metadata = { title: "Order" };
 
@@ -21,7 +23,12 @@ export default async function AdminOrder(props: { params: Promise<{ id: string }
   return (
     <>
       <Link href="/admin/orders" className="text-[12px] uppercase tracking-[0.14em] text-secondary hover:text-ivory">← Orders</Link>
-      <h1 className="h-display mb-8 mt-3 break-words text-[32px] sm:text-[40px]">Order {order.number}</h1>
+      <div className="mb-8 mt-3 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="h-display break-words text-[32px] sm:text-[40px]">Order {order.number}</h1>
+        {invoiceAvailable(order) && (
+          <a href={`/api/orders/${order.id}/invoice`} download className="btn-secondary btn-sm inline-flex items-center gap-2"><DownloadIcon size={16} /> Invoice (PDF)</a>
+        )}
+      </div>
       <OrderDetail
         admin
         order={order}

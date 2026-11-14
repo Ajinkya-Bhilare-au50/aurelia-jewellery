@@ -5,7 +5,9 @@ import { AvatarEditor } from "@/components/AvatarEditor";
 import { CopyButton } from "@/components/CopyButton";
 import { CouponIcon, GiftIcon, PackageIcon } from "@/components/Icons";
 import { LogoutButton } from "@/components/LogoutButton";
+import { AddressBook } from "@/components/AddressBook";
 import { MobileNumberCard } from "@/components/MobileNumberCard";
+import { listAddresses } from "@/lib/addresses";
 import { VerifyPhoneCard } from "@/components/VerifyPhoneCard";
 import { MOBILE_OTP } from "@/lib/features";
 import { StatusBadge } from "@/components/OrderTimeline";
@@ -20,11 +22,12 @@ export const metadata = { title: "My account" };
 export default async function AccountPage() {
   const user = await getUser();
   if (!user) redirect("/login?next=/account");
-  const [orderRows, rewardRows, referred, referralActive] = await Promise.all([
+  const [orderRows, rewardRows, referred, referralActive, addresses] = await Promise.all([
     prisma.order.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
     prisma.coupon.findMany({ where: { ownerId: user.id }, orderBy: { createdAt: "asc" } }),
     prisma.user.count({ where: { referredById: user.id } }),
     referralEligible(user),
+    listAddresses(user.id),
   ]);
   const orders = orderRows.map(toOrder);
   const rewards = rewardRows.map(toCoupon);
@@ -89,6 +92,7 @@ export default async function AccountPage() {
 
         <aside className="space-y-8 lg:col-span-4">
           {MOBILE_OTP ? !user.phone && <VerifyPhoneCard /> : <MobileNumberCard phone={user.phone} />}
+          <AddressBook initial={addresses} />
           <section className="border border-gold/30 bg-surface-muted p-8">
             <p className="label !text-gold">Refer a friend</p>
             <p className="h-display mt-3 text-3xl">Give 10%. Get ₹500.</p>

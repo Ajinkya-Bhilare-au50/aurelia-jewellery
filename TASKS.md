@@ -18,12 +18,14 @@
 - [x] Phase 15 — Review: oversell race fix (auto-refund), IST dates on UTC servers, coupon expiry TZ, friendly validation errors, admin orders pagination, real newsletter storage, live wishlist prices, mobile overflow fix, lint clean; smart search (typo-tolerant, synonyms, instant suggestions)
 - [x] Phase 16 — Light mode + dark mode toggle (CSS-variable tokens, cookie-persisted, no flash, contrast-checked); shop-page search box
 - [x] Phase 17 — Neon + Firebase connected; demo payments for portfolio; security upgrade Next 14 → 15.5.29 + React 19 + Firebase 13 (clears critical CVEs), Node ≥ 20.9
+- [x] Phase 19 — GST invoice PDFs (customer + admin), address book with checkout picker, product photo upload, full-screen pinch-zoom gallery, admin panel responsive on phones, mobile menu sign-out
 - [x] Phase 18 — Vercel deploy (GitHub auto-deploy); public demo numbers + read-only demo admin on the login page (masked customer data); Authkey.io SMS OTP option; Email OTP sign-in + sign-up (Gmail SMTP or Resend; no account enumeration, single-use codes, limits); dev OTP hash keyed (HMAC)
 
 ## design.md items not yet done
 - [x] Firebase phone OTP authentication (§11): OTP login, OTP-verified signup, link phone on account page
 - [ ] Order statuses "Processing" and "Quality check" (§12) and courier event feed
-- [ ] Account: addresses, notifications, security tabs (§12)
+- [x] Account: saved addresses (address book + checkout picker)
+- [ ] Account: notifications, security tabs (§12)
 - [ ] Admin: revenue charts, customers, shipments, returns/refunds, reviews, content, audit log, pagination (§13)
 - [ ] Toast component; gemstone and size filters (needs product data)
 

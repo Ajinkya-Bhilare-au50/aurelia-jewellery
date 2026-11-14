@@ -104,6 +104,9 @@ export interface Refund {
   error?: string;
 }
 
+/** Address-book entry (account page + checkout picker). */
+export type SavedAddress = Address & { id: string; isDefault: boolean };
+
 export interface Address {
   name: string;
   phone: string;

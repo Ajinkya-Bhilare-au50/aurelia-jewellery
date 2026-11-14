@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CheckIcon } from "@/components/Icons";
+import { CheckIcon, DownloadIcon } from "@/components/Icons";
+import { invoiceAvailable } from "@/lib/invoice";
 import { CancelOrder } from "@/components/CancelOrder";
 import { OrderDetail } from "@/components/OrderDetail";
 import { ORDER_CANCELLABLE } from "@/lib/cancellation";
@@ -34,7 +35,12 @@ export default async function OrderPage(
           <Link href="/account" className="text-[12px] uppercase tracking-[0.14em] text-secondary hover:text-ivory">← My account</Link>
           <h2 className="h-display mt-3 text-[36px]">Order {order.number}</h2>
         </div>
-        <Link href="/shop" className="btn-secondary btn-sm">Continue shopping</Link>
+        <div className="flex flex-wrap gap-3">
+          {invoiceAvailable(order) && (
+            <a href={`/api/orders/${order.id}/invoice`} download className="btn-secondary btn-sm inline-flex items-center gap-2"><DownloadIcon size={16} /> Download invoice</a>
+          )}
+          <Link href="/shop" className="btn-secondary btn-sm">Continue shopping</Link>
+        </div>
       </div>
       <OrderDetail order={order} aside={ORDER_CANCELLABLE.includes(order.status) && order.userId === user.id ? <CancelOrder order={order} /> : undefined} />
     </div>
