@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   Lock,
   LogOut,
+  KeyRound,
   Mail,
   MapPin,
   Menu,
@@ -106,6 +107,7 @@ export const InfoIcon = icon(Info);
 export const PhoneIcon = icon(Phone);
 export const MobileIcon = icon(Smartphone);
 export const MailIcon = icon(Mail);
+export const KeyIcon = icon(KeyRound);
 export const ClockIcon = icon(Clock);
 export const ChatIcon = icon(MessageCircle);
 export const DocumentIcon = icon(FileText);

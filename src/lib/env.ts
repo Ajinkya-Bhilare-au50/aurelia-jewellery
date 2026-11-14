@@ -23,7 +23,8 @@ export function checkProductionEnv() {
     warn.push("No OTP provider configured (Firebase or Authkey): mobile OTP sign-in and registration will not work.");
   }
   if (!env.NEXT_PUBLIC_SITE_URL?.startsWith("https://")) warn.push("NEXT_PUBLIC_SITE_URL should be your https:// domain (used in emails, sitemap, referral links).");
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) warn.push("RESEND_API_KEY / EMAIL_FROM not set: order emails are disabled.");
+  if (!(env.SMTP_USER && env.SMTP_PASS) && !(env.RESEND_API_KEY && env.EMAIL_FROM))
+    warn.push("No email transport (SMTP_USER/SMTP_PASS or RESEND_API_KEY/EMAIL_FROM): order emails and Email OTP sign-in are disabled.");
 
   for (const w of warn) console.warn(`[config] ${w}`);
   if (fatal.length) {

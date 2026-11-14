@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/AuthShell";
 import { DemoPhones } from "@/components/DemoPhones";
 import { getUser } from "@/lib/auth";
 import { isDemoSite } from "@/lib/demo";
+import { emailOtpAvailable } from "@/lib/emailOtp";
 
 export const metadata = { title: "Sign in" };
 
@@ -29,7 +30,7 @@ export default async function LoginPage() {
         </>
       }
     >
-      <Suspense><AuthForm mode="login" /></Suspense>
+      <Suspense><AuthForm mode="login" emailOtp={emailOtpAvailable()} /></Suspense>
     </AuthShell>
   );
 }

@@ -8,7 +8,9 @@ Read PROJECT_SPEC.md, ARCHITECTURE.md and TASKS.md before changing anything. Goi
 - Single Next.js app: UI in `src/app`, backend in `src/app/api/**` route handlers, shared logic in `src/lib`.
 - Data store: Postgres (Neon) via Prisma 5.22 (`prisma/schema.prisma`). Import the client and row→domain mappers (`toUser`, `toProduct`, `toCoupon`, `toOrder`) from `src/lib/db.ts`; never instantiate `PrismaClient` elsewhere.
 - `DATABASE_URL` / `DIRECT_URL` live in `.env` (Prisma CLI does not read `.env.local`).
-- Mobile OTP: Firebase Phone Auth on the client (`PhoneOtpField`), server verifies the Firebase ID token in `src/lib/phone.ts` (`verifyPhoneToken`). Without Firebase env vars, dev mode shows the OTP on screen (disabled in production).
+- Mobile OTP: Firebase Phone Auth on the client (`PhoneOtpField`), server verifies the Firebase ID token in `src/lib/phone.ts` (`verifyPhoneToken`). Alternative: Authkey.io (`NEXT_PUBLIC_OTP_PROVIDER=authkey`, `src/lib/authkey.ts`). Without a provider, dev mode shows the OTP on screen (disabled in production).
+- Email OTP sign-in: `src/lib/emailOtp.ts` + `/api/auth/email-otp/{send,verify}` + `EmailOtpField`. Mail goes through `src/lib/email.ts` (Gmail SMTP via `SMTP_USER`/`SMTP_PASS`, else Resend). The login tab only appears when `emailOtpAvailable()`. Responses must never reveal whether an email has an account.
+- Roles: `customer | admin | demo_admin` (`src/lib/roles.ts`). `demo_admin` can view admin pages (customer data masked via `src/lib/privacy.ts`) but `requireAdmin()` rejects every change.
 
 ## Rules
 - Themes: dark (default) + light. Colour tokens are CSS variables in `globals.css` (`:root`/`[data-theme=dark]` and `[data-theme=light]`), wired in `tailwind.config.ts`. `ivory` = primary TEXT colour (near-black in light mode). Never use `white`/`black` for text or surfaces; text over photos goes inside a `data-theme="dark"` element so it stays light. Theme is a cookie (`aurelia_theme`) read by the root layout → no flash. Check new colours for ≥ 4.5:1 contrast in BOTH themes.

@@ -1,30 +1,56 @@
 import "server-only";
+import nodemailer, { type Transporter } from "nodemailer";
 import { formatINR } from "./format";
 import { SITE, siteUrl } from "./site";
 import type { Order } from "./types";
 
 /**
- * Transactional email via Resend's REST API (https://resend.com).
- * Set RESEND_API_KEY and EMAIL_FROM (e.g. "Aurelia <orders@yourdomain.in>") to enable;
- * otherwise emails are logged and skipped. Never throws — email must not break orders.
+ * Transactional email. Two transports (first configured wins):
+ *  - SMTP, e.g. Gmail: SMTP_USER + SMTP_PASS (a Gmail *app password*), optional SMTP_HOST/SMTP_PORT.
+ *    Sends to any address without owning a domain (Gmail: ~500/day).
+ *  - Resend REST API: RESEND_API_KEY + EMAIL_FROM (needs a verified domain to email other people).
+ * EMAIL_FROM is the sender, e.g. "Aurelia <you@gmail.com>". Unconfigured → logged and skipped.
+ * Never throws: returns false on failure (order emails must not break orders).
  */
-async function send(to: string, subject: string, html: string) {
-  const key = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  if (!key || !from) {
-    console.info(`[email skipped: RESEND_API_KEY/EMAIL_FROM not set] ${subject}`);
-    return;
+const smtpConfigured = () => Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+const resendConfigured = () => Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+export const emailConfigured = () => smtpConfigured() || resendConfigured();
+
+const g = globalThis as unknown as { __smtp?: Transporter };
+function smtp() {
+  const port = Number(process.env.SMTP_PORT) || 465;
+  return (g.__smtp ??= nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port,
+    secure: port === 465,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    connectionTimeout: 10_000,
+    socketTimeout: 15_000,
+  }));
+}
+
+async function send(to: string, subject: string, html: string): Promise<boolean> {
+  if (!emailConfigured()) {
+    console.info(`[email skipped: no SMTP or Resend configured] ${subject}`);
+    return false;
   }
   try {
+    if (smtpConfigured()) {
+      const from = process.env.EMAIL_FROM || `${SITE.name} <${process.env.SMTP_USER}>`;
+      await smtp().sendMail({ from, to, subject, html, replyTo: SITE.email });
+      return true;
+    }
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html, reply_to: SITE.email }),
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: process.env.EMAIL_FROM, to: [to], subject, html, reply_to: SITE.email }),
       cache: "no-store",
     });
-    if (!res.ok) console.error("Email send failed", res.status, await res.text());
+    if (!res.ok) console.error("Email send failed", res.status, (await res.text()).slice(0, 300));
+    return res.ok;
   } catch (err) {
-    console.error("Email send failed", err);
+    console.error("Email send failed:", (err as Error).message);
+    return false;
   }
 }
 
@@ -107,6 +133,20 @@ export function sendOrderDelivered(o: Order) {
       "Delivered — enjoy wearing it",
       `<p style="font-size:14px;line-height:1.6">Order <strong>${o.number}</strong> has been delivered. If anything isn't right, you can request a return within ${SITE.returnDays} days of delivery.</p>
 ${button(`${siteUrl()}/refund-policy`, "RETURNS POLICY")}`,
+    ),
+  );
+}
+
+/** One-time sign-in code (email OTP). Returns false if it could not be sent. */
+export function sendLoginCode(to: string, code: string, name?: string) {
+  return send(
+    to,
+    `${code} is your Aurelia sign-in code`,
+    layout(
+      "Your sign-in code",
+      `<p style="font-size:14px;line-height:1.6">${name ? `Hi ${esc(name.split(" ")[0])}, use` : "Use"} this code to sign in to ${esc(SITE.name)}:</p>
+<p style="font-family:Georgia,serif;font-size:34px;letter-spacing:10px;margin:24px 0">${code}</p>
+<p style="font-size:13px;line-height:1.6;color:#555">It expires in 10 minutes and works once. If you didn't try to sign in, you can ignore this email: your account is safe.</p>`,
     ),
   );
 }

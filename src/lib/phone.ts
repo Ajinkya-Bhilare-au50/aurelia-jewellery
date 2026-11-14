@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, randomInt, timingSafeEqual } from "crypto";
+import { createHmac, randomInt, timingSafeEqual } from "crypto";
 import { SignJWT, createRemoteJWKSet, decodeProtectedHeader, jwtVerify } from "jose";
 import { authkeyConfigured, authkeySendOtp, authkeyVerifyOtp } from "./authkey";
 import { DEMO_LOGIN_PHONES, DEMO_OTP, DEMO_SIGNUP_PHONES, isDemoSite } from "./demo";
@@ -88,7 +88,8 @@ export async function verifyPhoneToken(token: string): Promise<string> {
 
 // ---- Dev-mode OTP (stateless signed challenge) ----
 
-const hashCode = (phone: string, code: string) => createHash("sha256").update(`${phone}:${code}`).digest("hex");
+// Keyed (HMAC) so the 6-digit code cannot be brute-forced offline from the readable challenge.
+const hashCode = (phone: string, code: string) => createHmac("sha256", secret()).update(`${phone}:${code}`).digest("hex");
 
 async function devSendOtp(phone: string) {
   const code = String(randomInt(100000, 1000000));

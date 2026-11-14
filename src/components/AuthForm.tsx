@@ -4,20 +4,24 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/client";
-import { MailIcon, MobileIcon } from "./Icons";
+import { EmailOtpField } from "./EmailOtpField";
+import { KeyIcon, MailIcon, MobileIcon } from "./Icons";
 import { PhoneOtpField } from "./PhoneOtpField";
 import { canViewAdmin } from "@/lib/roles";
 
 type AuthRes = { user: { role: string } };
 
-export function AuthForm({ mode }: { mode: "login" | "register" }) {
+type Method = "otp" | "emailOtp" | "email";
+const LABELS: Record<Method, string> = { otp: "Mobile OTP", emailOtp: "Email OTP", email: "Password" };
+
+export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register"; emailOtp?: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next");
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [method, setMethod] = useState<"otp" | "email">("otp");
+  const [method, setMethod] = useState<Method>("otp");
   const [phoneToken, setPhoneToken] = useState("");
 
   const isLogin = mode === "login";
@@ -64,11 +68,11 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   return (
     <div className="space-y-6">
       {isLogin && (
-        <div className="flex border-b border-border" role="tablist">
-          {(["otp", "email"] as const).map((m) => (
-            <button key={m} type="button" role="tab" aria-selected={method === m} onClick={() => { setMethod(m); setError(""); }} className={`${method === m ? "tab tab-active" : "tab"} inline-flex items-center gap-2`}>
-              {m === "otp" ? <MobileIcon size={15} /> : <MailIcon size={15} />}
-              {m === "otp" ? "Mobile OTP" : "Email & password"}
+        <div className={`grid border-b border-border sm:flex ${emailOtp ? "grid-cols-3" : "grid-cols-2"}`} role="tablist">
+          {(emailOtp ? (["otp", "emailOtp", "email"] as const) : (["otp", "email"] as const)).map((m) => (
+            <button key={m} type="button" role="tab" aria-selected={method === m} onClick={() => { setMethod(m); setError(""); }} className={`${method === m ? "tab tab-active" : "tab"} inline-flex items-center justify-center gap-2 px-2 tracking-[0.08em] sm:px-4 sm:tracking-[0.14em]`}>
+              <span className="hidden sm:inline-flex">{m === "otp" ? <MobileIcon size={15} /> : m === "emailOtp" ? <MailIcon size={15} /> : <KeyIcon size={15} />}</span>
+              {LABELS[m]}
             </button>
           ))}
         </div>
@@ -78,6 +82,11 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         <div className="space-y-5">
           <PhoneOtpField onVerified={otpLogin} verifyLabel={loading ? "Signing in…" : "Sign in"} />
           {alert}
+          {footer}
+        </div>
+      ) : isLogin && method === "emailOtp" ? (
+        <div className="space-y-5">
+          <EmailOtpField onSignedIn={done} />
           {footer}
         </div>
       ) : (
