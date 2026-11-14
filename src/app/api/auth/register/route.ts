@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { createAccount } from "@/lib/accounts";
 import { hashPassword, startSession, toPublicUser } from "@/lib/auth";
-import { handler } from "@/lib/http";
+import { HttpError, handler } from "@/lib/http";
 import { verifyPhoneToken } from "@/lib/phone";
+import { MOBILE_OTP } from "@/lib/features";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 const schema = z.object({
@@ -14,6 +15,7 @@ const schema = z.object({
 });
 
 export const POST = handler(async (req: Request) => {
+  if (!MOBILE_OTP) throw new HttpError(404, "Please sign up with an email code.");
   await rateLimit(`register:ip:${await clientIp()}`, 10, 3600);
   const input = schema.parse(await req.json());
   const [phone, passwordHash] = await Promise.all([verifyPhoneToken(input.phoneToken), hashPassword(input.password)]);

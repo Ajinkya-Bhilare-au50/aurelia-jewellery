@@ -3,10 +3,12 @@ import { startSession, toPublicUser } from "@/lib/auth";
 import { prisma, toUser } from "@/lib/db";
 import { HttpError, handler } from "@/lib/http";
 import { verifyPhoneToken } from "@/lib/phone";
+import { MOBILE_OTP } from "@/lib/features";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 /** Sign in with a verified mobile number (OTP already completed on the client). */
 export const POST = handler(async (req: Request) => {
+  if (!MOBILE_OTP) throw new HttpError(404, "Mobile sign-in is turned off. Please use Email OTP.");
   await rateLimit(`phone-login:ip:${await clientIp()}`, 20, 600);
   const { phoneToken } = z.object({ phoneToken: z.string().min(10).max(4000) }).parse(await req.json());
   const phone = await verifyPhoneToken(phoneToken);

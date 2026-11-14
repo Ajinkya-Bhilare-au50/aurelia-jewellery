@@ -7,12 +7,14 @@ import { api } from "@/lib/client";
 import { EmailOtpField } from "./EmailOtpField";
 import { KeyIcon, MailIcon, MobileIcon } from "./Icons";
 import { PhoneOtpField } from "./PhoneOtpField";
+import { MOBILE_OTP } from "@/lib/features";
 import { canViewAdmin } from "@/lib/roles";
 
 type AuthRes = { user: { role: string } };
 
 type Method = "otp" | "emailOtp" | "email";
 const LABELS: Record<Method, string> = { otp: "Mobile OTP", emailOtp: "Email OTP", email: "Password" };
+const COLS = ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"];
 
 export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register"; emailOtp?: boolean }) {
   const router = useRouter();
@@ -21,7 +23,9 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [method, setMethod] = useState<Method>(emailOtp && params.get("method") === "email" ? "emailOtp" : "otp");
+  // Mobile OTP is switched off in src/lib/features.ts; Email OTP shows only when email sending is configured.
+  const tabs: Method[] = [...(MOBILE_OTP ? (["otp"] as const) : []), ...(emailOtp ? (["emailOtp"] as const) : []), "email"];
+  const [method, setMethod] = useState<Method>(emailOtp && params.get("method") === "email" ? "emailOtp" : tabs[0]);
   const [phoneToken, setPhoneToken] = useState("");
 
   const isLogin = mode === "login";
@@ -68,8 +72,8 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
   return (
     <div className="space-y-6">
       {isLogin && (
-        <div className={`grid border-b border-border sm:flex ${emailOtp ? "grid-cols-3" : "grid-cols-2"}`} role="tablist">
-          {(emailOtp ? (["otp", "emailOtp", "email"] as const) : (["otp", "email"] as const)).map((m) => (
+        <div className={`grid border-b border-border sm:flex ${COLS[tabs.length]}`} role="tablist">
+          {tabs.map((m) => (
             <button key={m} type="button" role="tab" aria-selected={method === m} onClick={() => { setMethod(m); setError(""); }} className={`${method === m ? "tab tab-active" : "tab"} inline-flex items-center justify-center gap-2 px-2 tracking-[0.08em] sm:px-4 sm:tracking-[0.14em]`}>
               <span className="hidden sm:inline-flex">{m === "otp" ? <MobileIcon size={15} /> : m === "emailOtp" ? <MailIcon size={15} /> : <KeyIcon size={15} />}</span>
               {LABELS[m]}
@@ -84,9 +88,15 @@ export function AuthForm({ mode, emailOtp = false }: { mode: "login" | "register
           {alert}
           {footer}
         </div>
-      ) : isLogin && method === "emailOtp" ? (
+      ) : (isLogin && method === "emailOtp") || (!isLogin && !MOBILE_OTP && emailOtp) ? (
         <div className="space-y-5">
           <EmailOtpField onSignedIn={done} defaultReferral={params.get("ref") ?? ""} />
+          {footer}
+        </div>
+      ) : !isLogin && !MOBILE_OTP ? (
+        // Sign-up needs a verified mobile (off) or an email code (email sending not configured).
+        <div className="space-y-5">
+          <p className="border-l-2 border-warning bg-warning/5 px-4 py-3 text-sm text-secondary">New sign-ups are paused right now. Please check back soon.</p>
           {footer}
         </div>
       ) : (
